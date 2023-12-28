@@ -4,6 +4,12 @@ interface CellProps {
 }
 
 export default function Cell({ isDark, onClick }: CellProps) {
-  const cellColor = isDark ? "[#282828]" : "#F5F5F5";
-  return <div className={`bg-${cellColor} aspect-square w-full`}></div>;
+  return (
+    <div
+      className={`aspect-square w-full ${
+        isDark ? "bg-gray-800" : "bg-gray-100"
+      }`}
+      onClick={onClick}
+    ></div>
+  );
 }
