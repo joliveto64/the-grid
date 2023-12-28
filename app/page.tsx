@@ -3,7 +3,7 @@ import { useState } from "react";
 import Cell from "./components/Cell";
 
 export default function Home() {
-  const numCells = 20;
+  const numCells = 15;
   const [gridData, setGridData] = useState(createGrid(numCells, numCells));
 
   // function to create the grid
@@ -28,7 +28,7 @@ export default function Home() {
         if (rIndex === rowIndex) {
           return row.map((cell, cIndex) => {
             if (cIndex === columnIndex) {
-              return { ...cell, isDark: !cell.isDark }; // Toggle the isDark property
+              return { ...cell, isDark: !cell.isDark };
             }
             return cell;
           });
@@ -39,16 +39,17 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen w-screen flex items-center bg-gray-100">
+    <div className="h-screen w-screen flex items-center bg-gray-800">
       <div
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${numCells}, 1fr)`,
           gridTemplateRows: `repeat(${numCells}, 1fr)`,
-          gap: "0.25rem",
-          padding: "0.25rem",
+          gap: "0.1rem",
+          padding: "0.1rem",
           borderWidth: "4px",
           borderColor: "#1F2937",
+          backgroundColor: "gray",
         }}
         className={`w-screen border-4 border-gray-800`}
       >
