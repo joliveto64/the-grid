@@ -21,9 +21,8 @@ export default function Home() {
     return grid;
   }
 
+  // update state on cells to flip isDark state
   function handleClick(rowIndex: number, columnIndex: number) {
-    console.log("clicked");
-    // Create a deep copy of the current grid
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         if (rIndex === rowIndex) {
