@@ -8,9 +8,9 @@ interface CellProps {
 export default function Cell({ isDark, isStart, isEnd, onClick }: CellProps) {
   function chooseColor() {
     if (isStart) {
-      return "bg-sky-600";
-    } else if (isEnd) {
       return "bg-green-600";
+    } else if (isEnd) {
+      return "bg-red-700";
     } else if (isDark) {
       return "bg-stone-700";
     } else {

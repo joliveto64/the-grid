@@ -14,9 +14,9 @@ export default function Home() {
       const currentRow = [];
       for (let column = 0; column < columns; column++) {
         if (row === 0 && column === 0) {
-          currentRow.push({ isDark: true, isStart: true, isEnd: false });
+          currentRow.push({ isDark: false, isStart: true, isEnd: false });
         } else if (row === numCells - 1 && column === numCells - 1) {
-          currentRow.push({ isDark: true, isStart: false, isEnd: true });
+          currentRow.push({ isDark: false, isStart: false, isEnd: true });
         } else {
           currentRow.push({ isDark: true, isStart: false, isEnd: false });
         }
@@ -27,8 +27,6 @@ export default function Home() {
     // output: [[{}],[{}],[{}]]
     return grid;
   }
-
-  function handleAiMovement() {}
 
   // update state on cells to change color
   function handleCellClick(rowIndex: number, columnIndex: number) {
