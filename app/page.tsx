@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
+import { exploreMaze } from "@/ai";
 import Cell from "./components/Cell";
 
 export default function Home() {
-  const [numCells, setNumCells] = useState(10);
+  const [numCells, setNumCells] = useState(5);
   const [gridData, setGridData] = useState(createGrid(numCells, numCells));
 
   // function to create the initial grid state
@@ -27,6 +28,8 @@ export default function Home() {
     return grid;
   }
 
+  function handleAiMovement() {}
+
   // update state on cells to change color
   function handleCellClick(rowIndex: number, columnIndex: number) {
     setGridData((prevGrid) => {
@@ -34,7 +37,6 @@ export default function Home() {
         if (rIndex === rowIndex) {
           return row.map((cell, cIndex) => {
             if (cIndex === columnIndex) {
-              console.log(cell);
               return { ...cell, isDark: !cell.isDark };
             }
             return cell;
@@ -45,11 +47,14 @@ export default function Home() {
     });
   }
 
+  function handleTestMaze() {
+    exploreMaze(gridData);
+  }
+
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
       <div className="w-full flex justify-evenly">
-        <button>Choose Start</button>
-        <button>Choose End</button>
+        <button onClick={handleTestMaze}>Test Maze</button>
       </div>
       <div
         style={{
