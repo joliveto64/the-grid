@@ -2,10 +2,17 @@ interface CellProps {
   isDark: boolean;
   isStart: boolean;
   isEnd: boolean;
+  isAi: boolean;
   onClick: () => void;
 }
 
-export default function Cell({ isDark, isStart, isEnd, onClick }: CellProps) {
+export default function Cell({
+  isDark,
+  isStart,
+  isEnd,
+  isAi,
+  onClick,
+}: CellProps) {
   function chooseColor() {
     if (isStart) {
       return "bg-green-600";
@@ -13,7 +20,10 @@ export default function Cell({ isDark, isStart, isEnd, onClick }: CellProps) {
       return "bg-red-700";
     } else if (isDark) {
       return "bg-stone-700";
-    } else {
+    } else if (isAi) {
+      return "bg-pink-400";
+    }
+    {
       return "bg-stone-200";
     }
   }
