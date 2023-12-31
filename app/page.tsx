@@ -1,6 +1,7 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
+import { detectOpenSpace } from "./utils";
 
 export default function Home() {
   const {
@@ -93,10 +94,10 @@ export default function Home() {
     try {
       while (stack.length > 0) {
         let { row, col, cell } = stack.pop()!;
+        detectOpenSpace(row, col, grid);
 
         // update color for AI path
         aiColorChange(row, col);
-        console.log(row, col);
 
         if (cell.isEnd) {
           setAiMoving(false);
@@ -121,41 +122,26 @@ export default function Home() {
           }
         }
 
-        if (Math.random() > 0.5) {
-          if (row < grid.length - 1) {
-            let down = grid[row + 1][col];
-            if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-              stack.push({ row: row + 1, col: col, cell: down });
-            }
+        if (row < grid.length - 1) {
+          let down = grid[row + 1][col];
+          if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+            stack.push({ row: row + 1, col: col, cell: down });
           }
+        }
 
-          if (col < grid[0].length - 1) {
-            let right = grid[row][col + 1];
-            if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-              stack.push({ row: row, col: col + 1, cell: right });
-            }
-          }
-        } else {
-          if (col < grid[0].length - 1) {
-            let right = grid[row][col + 1];
-            if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-              stack.push({ row: row, col: col + 1, cell: right });
-            }
-          }
-
-          if (row < grid.length - 1) {
-            let down = grid[row + 1][col];
-            if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-              stack.push({ row: row + 1, col: col, cell: down });
-            }
+        if (col < grid[0].length - 1) {
+          let right = grid[row][col + 1];
+          if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+            stack.push({ row: row, col: col + 1, cell: right });
           }
         }
       }
     } catch (error) {
       console.log("Error occured with AI pathfinding:", error);
+    } finally {
+      setAiMoving(false);
     }
 
-    setAiMoving(false);
     return false;
   }
 
@@ -170,11 +156,27 @@ export default function Home() {
     });
   }
 
+  function clearPath() {
+    if (aiMoving) return;
+    setGridData((prevGrid) => {
+      return prevGrid.map((row, rIndex) => {
+        return row.map((cell, cIndex) => {
+          if (!cell.isEnd || cell.isStart) {
+            return { ...cell, isDark: true };
+          } else {
+            return cell;
+          }
+        });
+      });
+    });
+  }
+
   return (
     <>
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
         <div className="w-full flex justify-evenly">
           <>
+            <button onClick={clearPath}>Clear Path</button>
             <button
               onClick={() => {
                 if (!aiMoving) {
@@ -222,3 +224,10 @@ export default function Home() {
     </>
   );
 }
+
+// x
+// x
+// x
+// xxxx
+// xxxx
+// xxxx
