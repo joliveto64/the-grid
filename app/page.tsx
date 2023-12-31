@@ -3,7 +3,14 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 
 export default function Home() {
-  const { numCells, setNumCells, gridData, setGridData } = useSharedState();
+  const {
+    numCells,
+    setNumCells,
+    gridData,
+    setGridData,
+    aiMoving,
+    setAiMoving,
+  } = useSharedState();
 
   // update state on cells to change color
   function handleCellClick(rowIndex: number, columnIndex: number) {
@@ -43,7 +50,7 @@ export default function Home() {
         if (rIndex === CurrRow) {
           return row.map((col, cIndex) => {
             if (cIndex === CurrCol) {
-              return { ...col, isAi: !col.isAi };
+              return { ...col, isAi: true };
             }
             return col;
           });
@@ -91,30 +98,19 @@ export default function Home() {
         aiColorChange(row, col);
         console.log(row, col);
 
-        if (cell.isEnd) return true;
+        if (cell.isEnd) {
+          setAiMoving(false);
+          return true;
+        }
         let pos = row + "," + col;
         visited.add(pos);
 
         await sleep(200);
 
-        if (row < grid.length - 1) {
-          let down = grid[row + 1][col];
-          if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-            stack.push({ row: row + 1, col: col, cell: down });
-          }
-        }
-
         if (row > 0) {
           let up = grid[row - 1][col];
           if (!up.isDark && !visited.has(row - 1 + "," + col)) {
             stack.push({ row: row - 1, col: col, cell: up });
-          }
-        }
-
-        if (col < grid[0].length - 1) {
-          let right = grid[row][col + 1];
-          if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-            stack.push({ row: row, col: col + 1, cell: right });
           }
         }
 
@@ -124,19 +120,73 @@ export default function Home() {
             stack.push({ row: row, col: col - 1, cell: left });
           }
         }
+
+        if (Math.random() > 0.5) {
+          if (row < grid.length - 1) {
+            let down = grid[row + 1][col];
+            if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+              stack.push({ row: row + 1, col: col, cell: down });
+            }
+          }
+
+          if (col < grid[0].length - 1) {
+            let right = grid[row][col + 1];
+            if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+              stack.push({ row: row, col: col + 1, cell: right });
+            }
+          }
+        } else {
+          if (col < grid[0].length - 1) {
+            let right = grid[row][col + 1];
+            if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+              stack.push({ row: row, col: col + 1, cell: right });
+            }
+          }
+
+          if (row < grid.length - 1) {
+            let down = grid[row + 1][col];
+            if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+              stack.push({ row: row + 1, col: col, cell: down });
+            }
+          }
+        }
       }
     } catch (error) {
-      console.log("issue with setTimeout()");
+      console.log("Error occured with AI pathfinding:", error);
     }
 
+    setAiMoving(false);
     return false;
+  }
+
+  function clearAiPath() {
+    if (aiMoving) return;
+    setGridData((prevGrid) => {
+      return prevGrid.map((row, rIndex) => {
+        return row.map((cell, cIndex) => {
+          return { ...cell, isAi: false };
+        });
+      });
+    });
   }
 
   return (
     <>
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
         <div className="w-full flex justify-evenly">
-          <button onClick={handleTestMaze}>Test Maze</button>
+          <>
+            <button
+              onClick={() => {
+                if (!aiMoving) {
+                  setAiMoving(true);
+                  handleTestMaze();
+                }
+              }}
+            >
+              Test Maze
+            </button>
+            <button onClick={clearAiPath}>Clear AI Path</button>
+          </>
         </div>
         <div
           style={{
@@ -160,7 +210,9 @@ export default function Home() {
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
                 onClick={() => {
-                  handleCellClick(rowIndex, columnIndex);
+                  if (!aiMoving) {
+                    handleCellClick(rowIndex, columnIndex);
+                  }
                 }}
               />
             ))

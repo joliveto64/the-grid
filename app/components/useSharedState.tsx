@@ -1,8 +1,9 @@
 import { useState } from "react";
 
 export default function useSharedState() {
-  const [numCells, setNumCells] = useState(10);
+  const [numCells, setNumCells] = useState(8);
   const [gridData, setGridData] = useState(createGrid(numCells, numCells));
+  const [aiMoving, setAiMoving] = useState(false);
 
   function createGrid(rows: number, columns: number) {
     const grid = [];
@@ -39,5 +40,12 @@ export default function useSharedState() {
     return grid;
   }
 
-  return { numCells, setNumCells, gridData, setGridData };
+  return {
+    numCells,
+    setNumCells,
+    gridData,
+    setGridData,
+    aiMoving,
+    setAiMoving,
+  };
 }
