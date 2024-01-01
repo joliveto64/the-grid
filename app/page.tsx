@@ -168,10 +168,10 @@ export default function Home() {
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         return row.map((cell, cIndex) => {
-          if (!cell.isEnd || cell.isStart) {
-            return { ...cell, isDark: true };
-          } else {
+          if (cell.isEnd || cell.isStart) {
             return cell;
+          } else {
+            return { ...cell, isDark: true };
           }
         });
       });
@@ -183,7 +183,6 @@ export default function Home() {
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
         <div className="w-full flex justify-evenly">
           <>
-            <button onClick={clearPath}>Clear Path</button>
             <button
               onClick={() => {
                 if (!aiMoving) {
@@ -228,7 +227,10 @@ export default function Home() {
             ))
           )}
         </div>
-        <span>{countCells(gridData)}</span>
+        <div className="w-full flex justify-evenly">
+          <button onClick={clearPath}>Clear Path</button>
+          <span>Cells: {countCells(gridData)}</span>
+        </div>
       </div>
     </>
   );

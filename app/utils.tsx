@@ -67,7 +67,7 @@ function PreventOpenSpace(row: number, col: number, grid: Grid) {
 }
 
 function countCells(grid: Grid) {
-  let count = 0;
+  let count = -2;
 
   for (let row of grid) {
     for (let cell of row) {
