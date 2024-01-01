@@ -66,4 +66,19 @@ function PreventOpenSpace(row: number, col: number, grid: Grid) {
   return false;
 }
 
-export { PreventOpenSpace };
+function countCells(grid: Grid) {
+  let count = 0;
+
+  for (let row of grid) {
+    for (let cell of row) {
+      if (!cell.isDark) {
+        console.log(cell);
+        count++;
+      }
+    }
+  }
+
+  return count;
+}
+
+export { PreventOpenSpace, countCells };

@@ -1,7 +1,7 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
-import { PreventOpenSpace } from "./utils";
+import { PreventOpenSpace, countCells } from "./utils";
 
 // TODO: make walls thinner
 
@@ -26,6 +26,7 @@ export default function Home() {
         if (rIndex === rowIndex) {
           return row.map((cell, cIndex) => {
             if (cIndex === columnIndex) {
+              if (cell.isStart || cell.isEnd) return cell;
               return { ...cell, isDark: !cell.isDark };
             }
             return cell;
@@ -227,6 +228,7 @@ export default function Home() {
             ))
           )}
         </div>
+        <span>{countCells(gridData)}</span>
       </div>
     </>
   );
