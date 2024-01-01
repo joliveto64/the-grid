@@ -1,7 +1,9 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
-import { detectOpenSpace } from "./utils";
+import { PreventOpenSpace } from "./utils";
+
+// TODO: make walls thinner
 
 export default function Home() {
   const {
@@ -15,6 +17,10 @@ export default function Home() {
 
   // update state on cells to change color
   function handleCellClick(rowIndex: number, columnIndex: number) {
+    if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
+      return;
+    }
+
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         if (rIndex === rowIndex) {
@@ -77,7 +83,7 @@ export default function Home() {
         }
       }
     }
-    console.log(hasPath);
+
     return hasPath;
   }
 
@@ -94,7 +100,6 @@ export default function Home() {
     try {
       while (stack.length > 0) {
         let { row, col, cell } = stack.pop()!;
-        detectOpenSpace(row, col, grid);
 
         // update color for AI path
         aiColorChange(row, col);
@@ -142,6 +147,7 @@ export default function Home() {
       setAiMoving(false);
     }
 
+    alert("Path must connect the green and red squares");
     return false;
   }
 
@@ -181,6 +187,7 @@ export default function Home() {
               onClick={() => {
                 if (!aiMoving) {
                   setAiMoving(true);
+                  clearAiPath();
                   handleTestMaze();
                 }
               }}

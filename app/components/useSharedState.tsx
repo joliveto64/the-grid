@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function useSharedState() {
-  const [numCells, setNumCells] = useState(9);
+  const [numCells, setNumCells] = useState(10);
   const [gridData, setGridData] = useState(createGrid(numCells, numCells));
   const [aiMoving, setAiMoving] = useState(false);
 

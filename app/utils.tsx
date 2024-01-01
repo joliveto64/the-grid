@@ -6,7 +6,7 @@ interface Cell {
 }
 type Grid = Cell[][];
 
-function detectOpenSpace(row: number, col: number, grid: Grid) {
+function PreventOpenSpace(row: number, col: number, grid: Grid) {
   let up;
   let down;
   let right;
@@ -34,11 +34,11 @@ function detectOpenSpace(row: number, col: number, grid: Grid) {
     upRight &&
     !upRight.isDark
   ) {
-    console.log("open-area top right");
+    return true;
   }
 
   if (up && !up.isDark && left && !left.isDark && upLeft && !upLeft.isDark) {
-    console.log("open-area top left");
+    return true;
   }
 
   if (
@@ -49,7 +49,7 @@ function detectOpenSpace(row: number, col: number, grid: Grid) {
     downLeft &&
     !downLeft.isDark
   ) {
-    console.log("open-area bottom left");
+    return true;
   }
 
   if (
@@ -60,8 +60,10 @@ function detectOpenSpace(row: number, col: number, grid: Grid) {
     downRight &&
     !downRight.isDark
   ) {
-    console.log("open-area bottom right");
+    return true;
   }
+
+  return false;
 }
 
-export { detectOpenSpace };
+export { PreventOpenSpace };

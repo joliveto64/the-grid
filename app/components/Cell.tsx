@@ -19,7 +19,7 @@ export default function Cell({
     } else if (isEnd) {
       return "bg-red-700";
     } else if (isDark) {
-      return "bg-stone-700";
+      return "bg-stone-600";
     } else if (isAi) {
       return "bg-pink-400";
     }
