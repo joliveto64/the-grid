@@ -72,7 +72,6 @@ function countCells(grid: Grid) {
   for (let row of grid) {
     for (let cell of row) {
       if (!cell.isDark) {
-        console.log(cell);
         count++;
       }
     }

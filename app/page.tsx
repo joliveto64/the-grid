@@ -3,8 +3,6 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { PreventOpenSpace, countCells } from "./utils";
 
-// TODO: make walls thinner
-
 export default function Home() {
   const {
     numCells,
@@ -236,9 +234,8 @@ export default function Home() {
   );
 }
 
-// x
-// x
-// x
-// xxxx
-// xxxx
-// xxxx
+// TODO: mihai recs: make grid controller class (separate file), define grid functions within the class
+// have separate grid that is for the UI
+// gris class only deals with updating grid information, separate functions to change the UI
+
+// NOTES: just have UI state which is the current state. Then, move the pathfinding to its own file. Create deep copies of the grid state with only the required information included and pass that grid data into the path logic function call. sleep can be abstracted and passed in. After pathfinding, data is sent to colorChange which updates the UE separate from the pathfinding logic. see chat gpt conversation
