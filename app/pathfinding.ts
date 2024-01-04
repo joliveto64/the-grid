@@ -13,7 +13,6 @@ function exploreMaze(grid: Grid) {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       if (grid[r][c].isStart === true) {
-        // call finPath from starting cell
         hasPath = findPaths(grid, r, c);
       }
     }

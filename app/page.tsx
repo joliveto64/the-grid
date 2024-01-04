@@ -5,16 +5,8 @@ import { PreventOpenSpace, countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 
 export default function Home() {
-  const {
-    numCells,
-    setNumCells,
-    gridData,
-    setGridData,
-    aiMoving,
-    setAiMoving,
-  } = useSharedState();
+  const { numCells, setNumCells, gridData, setGridData } = useSharedState();
 
-  // update state on cells to change color
   function handleCellClick(rowIndex: number, columnIndex: number) {
     if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
       return;
@@ -59,10 +51,16 @@ export default function Home() {
   }
   type Grid = Cell[][];
 
-  function aiColorChange(array: [number, number][]) {
+  function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function aiColorChange(array: [number, number][]): Promise<void> {
     for (let i = 0; i < array.length; i++) {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
+
+      await delay(200);
 
       setGridData((prevGrid: Grid) => {
         return prevGrid.map((row, rIndex) => {
@@ -91,7 +89,6 @@ export default function Home() {
   }
 
   function clearPath() {
-    if (aiMoving) return;
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         return row.map((cell, cIndex) => {
@@ -150,7 +147,14 @@ export default function Home() {
           )}
         </div>
         <div className="w-full flex justify-evenly">
-          <button onClick={clearPath}>Clear Path</button>
+          <button
+            onClick={() => {
+              clearPath();
+              clearAiPath();
+            }}
+          >
+            Clear Path
+          </button>
           <span>Cells: {countCells(gridData)}</span>
         </div>
       </div>
