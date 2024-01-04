@@ -36,8 +36,8 @@ export default function Home() {
     });
   }
 
-  function handleTestMaze() {
-    let gridCopy = gridData.map((row) => {
+  function handleTestMaze(grid: Grid) {
+    let gridCopy = grid.map((row) => {
       return row.map((cell) => {
         return { ...cell };
       });
@@ -45,6 +45,10 @@ export default function Home() {
 
     const object = exploreMaze(gridCopy);
     console.log(object);
+
+    if (object?.path) {
+      aiColorChange(object.path);
+    }
   }
 
   interface Cell {
@@ -55,28 +59,28 @@ export default function Home() {
   }
   type Grid = Cell[][];
 
-  function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+  function aiColorChange(array: [number, number][]) {
+    for (let i = 0; i < array.length; i++) {
+      let CurrRow = array[i][0];
+      let CurrCol = array[i][1];
 
-  function aiColorChange(CurrRow: number, CurrCol: number) {
-    setGridData((prevGrid: Grid) => {
-      return prevGrid.map((row, rIndex) => {
-        if (rIndex === CurrRow) {
-          return row.map((col, cIndex) => {
-            if (cIndex === CurrCol) {
-              return { ...col, isAi: true };
-            }
-            return col;
-          });
-        }
-        return row;
+      setGridData((prevGrid: Grid) => {
+        return prevGrid.map((row, rIndex) => {
+          if (rIndex === CurrRow) {
+            return row.map((col, cIndex) => {
+              if (cIndex === CurrCol) {
+                return { ...col, isAi: true };
+              }
+              return col;
+            });
+          }
+          return row;
+        });
       });
-    });
+    }
   }
 
   function clearAiPath() {
-    if (aiMoving) return;
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         return row.map((cell, cIndex) => {
@@ -108,11 +112,8 @@ export default function Home() {
           <>
             <button
               onClick={() => {
-                if (!aiMoving) {
-                  setAiMoving(true);
-                  clearAiPath();
-                  handleTestMaze();
-                }
+                clearAiPath();
+                handleTestMaze(gridData);
               }}
             >
               Test Maze
@@ -142,9 +143,7 @@ export default function Home() {
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
                 onClick={() => {
-                  if (!aiMoving) {
-                    handleCellClick(rowIndex, columnIndex);
-                  }
+                  handleCellClick(rowIndex, columnIndex);
                 }}
               />
             ))
