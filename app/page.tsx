@@ -61,7 +61,7 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(100);
+      await delay(75);
 
       setGridData((prevGrid: Grid) => {
         return prevGrid.map((row, rIndex) => {
@@ -117,7 +117,13 @@ export default function Home() {
               Test Maze
             </button>
             <button onClick={clearAiPath}>Clear AI Path</button>
-            <button onClick={() => {}}>Generate</button>
+            <button
+              onClick={() => {
+                setGridData(createMaze(1000, 16, 16));
+              }}
+            >
+              Generate
+            </button>
           </>
         </div>
         <div
