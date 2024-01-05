@@ -48,7 +48,7 @@ function fillGrid(grid: Grid): Grid {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       let randomNum = Math.random();
-      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.35) {
+      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.3) {
         grid[r][c] = { ...grid[r][c], isDark: false };
       }
     }
@@ -57,20 +57,13 @@ function fillGrid(grid: Grid): Grid {
   return grid;
 }
 
-function createMaze(numMazes: number, rows: number, cols: number) {
-  let gridArray = [];
-  for (let i = 0; i < numMazes; i++) {
-    gridArray.push(createGrid(rows, cols));
-  }
-
-  for (let i = 0; i < gridArray.length; i++) {
-    fillGrid(gridArray[i]);
-  }
-
+function createMaze(rows: number, cols: number) {
   let validMazes = [];
-  for (let i = 0; i < gridArray.length; i++) {
-    if (exploreMaze(gridArray[i])?.hasPath) {
-      validMazes.push(gridArray[i]);
+  while (validMazes.length < 1) {
+    let currentMaze = fillGrid(createGrid(rows, cols));
+
+    if (exploreMaze(currentMaze)?.hasPath) {
+      validMazes.push(currentMaze);
     }
   }
 
