@@ -68,15 +68,17 @@ function createMaze(numMazes: number, rows: number, cols: number) {
   }
 
   let validMazes = [];
-  for (let i = 0; i < gridArray.length; i++) {
-    if (exploreMaze(gridArray[i])?.hasPath) {
-      validMazes.push(gridArray[i]);
+  let limiter = 0;
+  while (validMazes.length < 1 || limiter > 100) {
+    for (let i = 0; i < gridArray.length; i++) {
+      if (exploreMaze(gridArray[i])?.hasPath) {
+        validMazes.push(gridArray[i]);
+      }
+      limiter++;
     }
   }
 
-  return validMazes;
+  return validMazes[0];
 }
 
-let arrayOfGrids = createMaze(100, 5, 5);
-console.log(arrayOfGrids.length);
-export { createGrid, arrayOfGrids };
+export { createGrid, createMaze };

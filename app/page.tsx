@@ -3,7 +3,7 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { PreventOpenSpace, countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
-import { arrayOfGrids } from "./createMaze";
+import { createMaze } from "./createMaze";
 
 export default function Home() {
   const { numCells, gridData, setGridData } = useSharedState();
@@ -117,6 +117,7 @@ export default function Home() {
               Test Maze
             </button>
             <button onClick={clearAiPath}>Clear AI Path</button>
+            <button onClick={() => {}}>Generate</button>
           </>
         </div>
         <div
