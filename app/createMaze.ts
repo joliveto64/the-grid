@@ -64,19 +64,19 @@ function createMaze(numMazes: number, rows: number, cols: number) {
   }
 
   for (let i = 0; i < gridArray.length; i++) {
-    console.log("running");
     fillGrid(gridArray[i]);
   }
 
   let validMazes = [];
   for (let i = 0; i < gridArray.length; i++) {
-    if (exploreMaze(gridArray[i])) {
+    if (exploreMaze(gridArray[i])?.hasPath) {
       validMazes.push(gridArray[i]);
     }
   }
 
-  return gridArray;
+  return validMazes;
 }
 
-let arrayOfGrids = createMaze(1, 5, 5);
+let arrayOfGrids = createMaze(100, 5, 5);
+console.log(arrayOfGrids.length);
 export { createGrid, arrayOfGrids };

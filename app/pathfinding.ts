@@ -9,16 +9,16 @@ type Grid = Cell[][];
 function exploreMaze(grid: Grid) {
   if (!grid) return;
 
-  let hasPath;
+  let object;
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       if (grid[r][c].isStart === true) {
-        hasPath = findPaths(grid, r, c);
+        object = findPaths(grid, r, c);
       }
     }
   }
 
-  return hasPath;
+  return object;
 }
 
 function findPaths(grid: Grid, startRow: number, startCol: number) {
