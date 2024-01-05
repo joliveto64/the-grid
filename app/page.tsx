@@ -3,9 +3,10 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { PreventOpenSpace, countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
+import { arrayOfGrids } from "./createMaze";
 
 export default function Home() {
-  const { numCells, setNumCells, gridData, setGridData } = useSharedState();
+  const { numCells, gridData, setGridData } = useSharedState();
 
   function handleCellClick(rowIndex: number, columnIndex: number) {
     if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
@@ -60,7 +61,7 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(200);
+      await delay(100);
 
       setGridData((prevGrid: Grid) => {
         return prevGrid.map((row, rIndex) => {
@@ -103,7 +104,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div className="App">
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
         <div className="w-full flex justify-evenly">
           <>
@@ -158,7 +159,7 @@ export default function Home() {
           <span>Cells: {countCells(gridData)}</span>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

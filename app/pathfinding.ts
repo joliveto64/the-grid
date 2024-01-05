@@ -67,7 +67,7 @@ function findPaths(grid: Grid, startRow: number, startCol: number) {
     }
   }
 
-  alert("Path must connect the green and red squares");
+  console.log("no path");
   finalPath = convertCoords(visited);
   return { hasPath: false, path: finalPath };
 }
