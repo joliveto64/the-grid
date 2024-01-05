@@ -52,17 +52,33 @@ function findPaths(grid: Grid, startRow: number, startCol: number) {
       }
     }
 
-    if (row < grid.length - 1) {
-      let down = grid[row + 1][col];
-      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-        stack.push({ row: row + 1, col: col, cell: down });
+    if (Math.random() > 0.5) {
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1, cell: right });
+        }
       }
-    }
 
-    if (col < grid[0].length - 1) {
-      let right = grid[row][col + 1];
-      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-        stack.push({ row: row, col: col + 1, cell: right });
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col, cell: down });
+        }
+      }
+    } else {
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col, cell: down });
+        }
+      }
+
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1, cell: right });
+        }
       }
     }
   }

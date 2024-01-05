@@ -119,7 +119,7 @@ export default function Home() {
             <button onClick={clearAiPath}>Clear AI Path</button>
             <button
               onClick={() => {
-                setGridData(createMaze(30, 30));
+                setGridData(createMaze(100, 100));
               }}
             >
               Generate
