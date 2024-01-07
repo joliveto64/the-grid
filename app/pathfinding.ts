@@ -1,4 +1,3 @@
-const gridSize = 20;
 interface Cell {
   isDark: boolean;
   isStart: boolean;
@@ -112,4 +111,4 @@ function calcDistance(x: number, y: number, gridSize: number) {
   return gridSize - x + (gridSize - y);
 }
 
-export { exploreMaze, gridSize };
+export { exploreMaze };
