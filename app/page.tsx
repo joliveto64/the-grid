@@ -9,7 +9,21 @@ import { createMaze } from "./createMaze";
 // TODO: css for landscape / larger screens
 
 export default function Home() {
-  const { gridData, setGridData, gridSize, setGridSize } = useSharedState();
+  const {
+    gridData,
+    setGridData,
+    gridSize,
+    setGridSize,
+    isDragging,
+    setIsDragging,
+  } = useSharedState();
+  type Cell = {
+    isDark: boolean;
+    isStart: boolean;
+    isEnd: boolean;
+    isAi: boolean;
+  };
+  type Grid = Cell[][];
 
   function handleCellClick(rowIndex: number, columnIndex: number) {
     if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
@@ -46,15 +60,6 @@ export default function Home() {
       aiColorChange(object.path);
     }
   }
-
-  interface Cell {
-    isDark: boolean;
-    isStart: boolean;
-    isEnd: boolean;
-    isAi: boolean;
-  }
-
-  type Grid = Cell[][];
 
   function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -107,6 +112,32 @@ export default function Home() {
     });
   }
 
+  function handleTouchStart(
+    event: React.TouchEvent<HTMLDivElement>,
+    rowIndex: number,
+    columnIndex: number
+  ) {
+    console.log(rowIndex, columnIndex);
+    setIsDragging(true);
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    if (isDragging) {
+      console.log("moving");
+
+      const touch = event.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+      console.log(element?.getAttribute("data-row"));
+      console.log(element?.getAttribute("data-col"));
+    }
+  }
+
+  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    console.log("end");
+    setIsDragging(false);
+  }
+
   return (
     <div className="App">
       <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
@@ -141,17 +172,24 @@ export default function Home() {
             backgroundColor: "rgb(120 113 108)",
           }}
           className={`portrait:w-full border-4 border-gray-800 landscape:width-vh`}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {gridData.map((row, rowIndex) =>
             row.map((cell, columnIndex) => (
               <Cell
                 key={`${rowIndex}-${columnIndex}`}
+                dataRow={rowIndex}
+                dataCol={columnIndex}
                 isDark={cell.isDark}
                 isStart={cell.isStart}
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
                 onClick={() => {
-                  handleCellClick(rowIndex, columnIndex);
+                  // handleCellClick(rowIndex, columnIndex);
+                }}
+                onTouchStart={(event) => {
+                  handleTouchStart(event, rowIndex, columnIndex);
                 }}
               />
             ))

@@ -4,6 +4,9 @@ export default function Cell(props: {
   isEnd: boolean;
   isAi: boolean;
   onClick: () => void;
+  dataRow: number;
+  dataCol: number;
+  onTouchStart?: (event: React.TouchEvent<HTMLDivElement>) => void;
 }) {
   function chooseColor() {
     if (props.isStart) {
@@ -27,6 +30,9 @@ export default function Cell(props: {
         chooseColor()
       }`}
       onClick={props.onClick}
+      onTouchStart={props.onTouchStart}
+      data-row={props.dataRow}
+      data-col={props.dataCol}
     ></div>
   );
 }

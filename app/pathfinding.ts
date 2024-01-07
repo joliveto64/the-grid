@@ -1,9 +1,9 @@
-interface Cell {
+type Cell = {
   isDark: boolean;
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
-}
+};
 type Grid = Cell[][];
 
 function exploreMaze(grid: Grid) {
