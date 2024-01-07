@@ -1,4 +1,4 @@
-import { exploreMaze, gridSize } from "./pathfinding";
+import { exploreMaze } from "./pathfinding";
 import { PreventOpenSpace } from "./utils";
 
 interface Cell {
@@ -62,7 +62,7 @@ function createMaze(rows: number, cols: number) {
   while (validMazes.length < 1) {
     let currentMaze = fillGrid(createGrid(rows, cols));
 
-    if (exploreMaze(currentMaze, gridSize)?.hasPath) {
+    if (exploreMaze(currentMaze)?.hasPath) {
       validMazes.push(currentMaze);
     }
   }

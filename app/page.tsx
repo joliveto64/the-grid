@@ -39,7 +39,7 @@ export default function Home() {
       });
     });
 
-    const object = exploreMaze(gridCopy, gridSize);
+    const object = exploreMaze(gridCopy);
     console.log(object);
 
     if (object?.path) {
