@@ -2,15 +2,19 @@ import { useState } from "react";
 import { createGrid } from "../createMaze";
 
 export default function useSharedState() {
-  const numCells = 100;
-  const [gridData, setGridData] = useState(createGrid(numCells, numCells));
+  const [gridSize, setGridSize] = useState(20);
+  const [gridData, setGridData] = useState(createGrid(gridSize, gridSize));
   const [aiMoving, setAiMoving] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   return {
-    numCells,
     gridData,
     setGridData,
     aiMoving,
     setAiMoving,
+    isDragging,
+    setIsDragging,
+    gridSize,
+    setGridSize,
   };
 }

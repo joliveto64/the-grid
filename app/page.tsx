@@ -5,8 +5,11 @@ import { PreventOpenSpace, countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
+// TODO: allow user to trace path && determine winner
+// TODO: css for landscape / larger screens
+
 export default function Home() {
-  const { numCells, gridData, setGridData } = useSharedState();
+  const { gridData, setGridData, gridSize, setGridSize } = useSharedState();
 
   function handleCellClick(rowIndex: number, columnIndex: number) {
     if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
@@ -36,7 +39,7 @@ export default function Home() {
       });
     });
 
-    const object = exploreMaze(gridCopy);
+    const object = exploreMaze(gridCopy, gridSize);
     console.log(object);
 
     if (object?.path) {
@@ -50,6 +53,7 @@ export default function Home() {
     isEnd: boolean;
     isAi: boolean;
   }
+
   type Grid = Cell[][];
 
   function delay(ms: number): Promise<void> {
@@ -61,7 +65,7 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(25);
+      await delay(75);
 
       setGridData((prevGrid: Grid) => {
         return prevGrid.map((row, rIndex) => {
@@ -105,9 +109,17 @@ export default function Home() {
 
   return (
     <div className="App">
-      <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
-        <div className="w-full flex justify-evenly">
+      <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 mb-4">
           <>
+            <button
+              className="landscape:mb-4"
+              onClick={() => {
+                setGridData(createMaze(gridSize, gridSize));
+              }}
+            >
+              Generate
+            </button>
             <button
               onClick={() => {
                 clearAiPath();
@@ -116,28 +128,19 @@ export default function Home() {
             >
               Test Maze
             </button>
-            <button onClick={clearAiPath}>Clear AI Path</button>
-            <button
-              onClick={() => {
-                setGridData(createMaze(100, 100));
-              }}
-            >
-              Generate
-            </button>
           </>
         </div>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${numCells}, 1fr)`,
-            gridTemplateRows: `repeat(${numCells}, 1fr)`,
+            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+            gridTemplateRows: `repeat(${gridSize}, 1fr)`,
             gap: "0.1rem",
             padding: ".5rem",
-            borderWidth: "4px",
-            borderColor: "rgb(68 64 60)",
+            border: "none",
             backgroundColor: "rgb(120 113 108)",
           }}
-          className={`w-screen border-4 border-gray-800`}
+          className={`portrait:w-full border-4 border-gray-800 landscape:width-vh`}
         >
           {gridData.map((row, rowIndex) =>
             row.map((cell, columnIndex) => (
@@ -154,24 +157,21 @@ export default function Home() {
             ))
           )}
         </div>
-        <div className="w-full flex justify-evenly">
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
           <button
             onClick={() => {
               clearPath();
               clearAiPath();
             }}
           >
-            Clear Path
+            Clear All
           </button>
-          <span>Cells: {countCells(gridData)}</span>
+          <span className="landscape:mb-4 landscape:mt-4">
+            Cells: {countCells(gridData)}
+          </span>
+          <button onClick={clearAiPath}>Clear AI Path</button>
         </div>
       </div>
     </div>
   );
 }
-
-// TODO: mihai recs: make grid controller class (separate file), define grid functions within the class
-// have separate grid that is for the UI
-// gris class only deals with updating grid information, separate functions to change the UI
-
-// NOTES: just have UI state which is the current state. Then, move the pathfinding to its own file. Create deep copies of the grid state with only the required information included and pass that grid data into the path logic function call. sleep can be abstracted and passed in. After pathfinding, data is sent to colorChange which updates the UE separate from the pathfinding logic. see chat gpt conversation

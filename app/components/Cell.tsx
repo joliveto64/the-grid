@@ -1,26 +1,18 @@
-interface CellProps {
+export default function Cell(props: {
   isDark: boolean;
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
   onClick: () => void;
-}
-
-export default function Cell({
-  isDark,
-  isStart,
-  isEnd,
-  isAi,
-  onClick,
-}: CellProps) {
+}) {
   function chooseColor() {
-    if (isStart) {
+    if (props.isStart) {
       return "bg-green-600";
-    } else if (isEnd) {
+    } else if (props.isEnd) {
       return "bg-red-700";
-    } else if (isDark) {
+    } else if (props.isDark) {
       return "bg-stone-600 active:bg-stone-400";
-    } else if (isAi) {
+    } else if (props.isAi) {
       return "bg-pink-400";
     }
     {
@@ -34,7 +26,7 @@ export default function Cell({
         //         68,64,60          231,229,228
         chooseColor()
       }`}
-      onClick={onClick}
+      onClick={props.onClick}
     ></div>
   );
 }

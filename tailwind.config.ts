@@ -36,6 +36,7 @@ const config: Config = {
       },
     },
   },
+  display: ["landscape", "portrait"],
   plugins: [],
 };
 export default config;

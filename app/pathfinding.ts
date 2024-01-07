@@ -1,3 +1,4 @@
+const gridSize = 20;
 interface Cell {
   isDark: boolean;
   isStart: boolean;
@@ -6,14 +7,14 @@ interface Cell {
 }
 type Grid = Cell[][];
 
-function exploreMaze(grid: Grid) {
+function exploreMaze(grid: Grid, gridSize: number) {
   if (!grid) return;
 
   let object;
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       if (grid[r][c].isStart === true) {
-        object = findPaths(grid, r, c);
+        object = findPaths(grid, r, c, gridSize);
       }
     }
   }
@@ -21,8 +22,14 @@ function exploreMaze(grid: Grid) {
   return object;
 }
 
-function findPaths(grid: Grid, startRow: number, startCol: number) {
+function findPaths(
+  grid: Grid,
+  startRow: number,
+  startCol: number,
+  gridSize: number
+) {
   let visited: Set<string> = new Set();
+  let randomNum = Math.random() > 0.5;
   let finalPath: [number, number][];
   let stack = [
     { row: startRow, col: startCol, cell: grid[startRow][startCol] },
@@ -52,7 +59,7 @@ function findPaths(grid: Grid, startRow: number, startCol: number) {
       }
     }
 
-    if (Math.random() > 0.5) {
+    if (randomNum) {
       if (col < grid[0].length - 1) {
         let right = grid[row][col + 1];
         if (!right.isDark && !visited.has(row + "," + (col + 1))) {
@@ -101,4 +108,8 @@ function convertCoords(visitedSet: Set<string>) {
   return tuplesArray;
 }
 
-export { exploreMaze };
+function calcDistance(x: number, y: number, gridSize: number) {
+  return gridSize - x + (gridSize - y);
+}
+
+export { exploreMaze, gridSize };
