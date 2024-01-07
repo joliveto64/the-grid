@@ -112,19 +112,15 @@ export default function Home() {
     });
   }
 
-  function handleTouchStart(
-    event: React.TouchEvent<HTMLDivElement>,
-    rowIndex: number,
-    columnIndex: number
-  ) {
-    console.log(rowIndex, columnIndex);
+  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
+    console.log(target.getAttribute("data-row"));
+    console.log(target.getAttribute("data-col"));
     setIsDragging(true);
   }
 
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
     if (isDragging) {
-      console.log("moving");
-
       const touch = event.touches[0];
       const element = document.elementFromPoint(touch.clientX, touch.clientY);
 
@@ -189,7 +185,7 @@ export default function Home() {
                   // handleCellClick(rowIndex, columnIndex);
                 }}
                 onTouchStart={(event) => {
-                  handleTouchStart(event, rowIndex, columnIndex);
+                  handleTouchStart(event);
                 }}
               />
             ))
