@@ -5,8 +5,7 @@ import { PreventOpenSpace, countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
-// TODO: allow user to trace path && determine winner
-// TODO: css for landscape / larger screens
+// TODO: make user solve then AI solve after. Doesn't work well on top of each other
 
 export default function Home() {
   const {
@@ -72,37 +71,37 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(200);
+      await delay(75);
 
       setGridData((prevGrid: Grid) => {
-        return prevGrid.map((row, rIndex) => {
-          if (rIndex === CurrRow) {
-            return row.map((col, cIndex) => {
-              if (cIndex === CurrCol) {
-                return { ...col, isAi: true };
-              }
-              return col;
-            });
-          }
-          return row;
-        });
+        const newGrid = [...prevGrid];
+
+        if (newGrid[CurrRow] && newGrid[CurrRow][CurrCol]) {
+          newGrid[CurrRow] = [...newGrid[CurrRow]];
+          newGrid[CurrRow][CurrCol] = {
+            ...newGrid[CurrRow][CurrCol],
+            isAi: true,
+          };
+        }
+
+        return newGrid;
       });
     }
   }
 
   function userColorChange(inputRow: number, inputCol: number): void {
     setGridData((prevGrid: Grid) => {
-      return prevGrid.map((row, rIndex) => {
-        if (rIndex === inputRow) {
-          return row.map((cell, cIndex) => {
-            if (cIndex === inputCol) {
-              return { ...cell, isUser: true };
-            }
-            return cell;
-          });
-        }
-        return row;
-      });
+      const newGrid = [...prevGrid];
+
+      if (newGrid[inputRow] && newGrid[inputRow][inputCol]) {
+        newGrid[inputRow] = [...newGrid[inputRow]];
+        newGrid[inputRow][inputCol] = {
+          ...newGrid[inputRow][inputCol],
+          isUser: true,
+        };
+      }
+
+      return newGrid;
     });
   }
 
@@ -192,10 +191,11 @@ export default function Home() {
             <button
               className="landscape:mb-4"
               onClick={() => {
+                touchedCells.current.clear();
                 setGridData(createMaze(gridSize, gridSize));
               }}
             >
-              Generate
+              New Maze!
             </button>
             <button
               onClick={() => {
@@ -203,7 +203,7 @@ export default function Home() {
                 handleTestMaze(gridData);
               }}
             >
-              Test Maze
+              AI solve
             </button>
           </>
         </div>
@@ -242,7 +242,7 @@ export default function Home() {
             ))
           )}
         </div>
-        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
+        {/* <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
           <button
             onClick={() => {
               clearPath();
@@ -255,7 +255,7 @@ export default function Home() {
             Cells: {countCells(gridData)}
           </span>
           <button onClick={clearAiPath}>Clear AI Path</button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

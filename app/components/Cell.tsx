@@ -11,17 +11,17 @@ export default function Cell(props: {
 }) {
   function chooseColor() {
     if (props.isStart) {
-      return "bg-green-600";
+      return "bg-emerald-500";
     } else if (props.isEnd) {
-      return "bg-red-700";
+      return "bg-red-400";
     } else if (props.isDark) {
       return "bg-stone-600 active:bg-stone-400";
     } else if (props.isUser && props.isAi) {
-      return "bg-gradient-to-b from-blue-400 to-pink-400";
+      return "bg-gradient-to-b from-blue-400 to-yellow-300";
     } else if (props.isUser) {
       return "bg-blue-400";
     } else if (props.isAi) {
-      return "bg-pink-400";
+      return "bg-yellow-300";
     } else {
       return "bg-stone-200";
     }
