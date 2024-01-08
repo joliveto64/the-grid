@@ -16,6 +16,7 @@ export default function Home() {
     setGridSize,
     isDragging,
     setIsDragging,
+    touchedCells,
   } = useSharedState();
   type Cell = {
     isDark: boolean;
@@ -114,9 +115,21 @@ export default function Home() {
 
   function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
-    console.log(target.getAttribute("data-row"));
-    console.log(target.getAttribute("data-col"));
-    setIsDragging(true);
+    const rowString = target.getAttribute("data-row");
+    const colString = target.getAttribute("data-col");
+
+    if (rowString && colString) {
+      const row = parseInt(rowString);
+      const col = parseInt(rowString);
+
+      if (
+        gridData[row][col].isStart ||
+        touchedCells.current.has(`${row},${col}`)
+      ) {
+        setIsDragging(true);
+        console.log("start");
+      }
+    }
   }
 
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
@@ -130,8 +143,8 @@ export default function Home() {
   }
 
   function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
-    console.log("end");
     setIsDragging(false);
+    console.log("end");
   }
 
   return (
