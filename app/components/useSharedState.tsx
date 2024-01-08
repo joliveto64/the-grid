@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { createGrid } from "../createMaze";
 
 export default function useSharedState() {
-  const [gridSize, setGridSize] = useState(8);
+  const [gridSize, setGridSize] = useState(12);
   const [gridData, setGridData] = useState(createGrid(gridSize, gridSize));
   const [aiMoving, setAiMoving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);

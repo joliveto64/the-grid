@@ -72,7 +72,7 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(75);
+      await delay(200);
 
       setGridData((prevGrid: Grid) => {
         return prevGrid.map((row, rIndex) => {
@@ -137,14 +137,11 @@ export default function Home() {
 
     if (rowString && colString) {
       const row = parseInt(rowString);
-      const col = parseInt(rowString);
+      const col = parseInt(colString);
 
-      if (
-        gridData[row][col].isStart ||
-        touchedCells.current.has(`${row},${col}`)
-      ) {
-        setIsDragging(true);
+      if (gridData[row][col].isStart || gridData[row][col].isUser) {
         touchedCells.current.add(`${row},${col}`);
+        setIsDragging(true);
         console.log("start");
       }
     }
@@ -160,9 +157,24 @@ export default function Home() {
       if (rowString && colString) {
         const row = parseInt(rowString);
         const col = parseInt(colString);
-        console.log(row, col);
-        touchedCells.current.add(`${row},${col}`);
-        userColorChange(row, col);
+        const up = `${row - 1},${col}`;
+        const down = `${row + 1},${col}`;
+        const right = `${row},${col + 1}`;
+        const left = `${row},${col - 1}`;
+
+        if (gridData[row][col].isDark) {
+          return;
+        }
+
+        if (
+          touchedCells.current.has(up) ||
+          touchedCells.current.has(down) ||
+          touchedCells.current.has(right) ||
+          touchedCells.current.has(left)
+        ) {
+          touchedCells.current.add(`${row},${col}`);
+          userColorChange(row, col);
+        }
       }
     }
   }
