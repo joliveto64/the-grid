@@ -3,6 +3,7 @@ export default function Cell(props: {
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
+  isUser: boolean;
   onClick: () => void;
   dataRow: number;
   dataCol: number;
@@ -15,10 +16,13 @@ export default function Cell(props: {
       return "bg-red-700";
     } else if (props.isDark) {
       return "bg-stone-600 active:bg-stone-400";
+    } else if (props.isUser && props.isAi) {
+      return "bg-gradient-to-b from-blue-400 to-pink-400";
+    } else if (props.isUser) {
+      return "bg-blue-400";
     } else if (props.isAi) {
       return "bg-pink-400";
-    }
-    {
+    } else {
       return "bg-stone-200";
     }
   }

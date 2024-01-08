@@ -6,6 +6,7 @@ interface Cell {
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
+  isUser: boolean;
 }
 type Grid = Cell[][];
 
@@ -20,6 +21,7 @@ function createGrid(rows: number, columns: number) {
           isStart: true,
           isEnd: false,
           isAi: false,
+          isUser: false,
         });
       } else if (row === rows - 1 && column === columns - 1) {
         currentRow.push({
@@ -27,6 +29,7 @@ function createGrid(rows: number, columns: number) {
           isStart: false,
           isEnd: true,
           isAi: false,
+          isUser: false,
         });
       } else {
         currentRow.push({
@@ -34,6 +37,7 @@ function createGrid(rows: number, columns: number) {
           isStart: false,
           isEnd: false,
           isAi: false,
+          isUser: false,
         });
       }
     }

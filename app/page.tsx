@@ -23,6 +23,7 @@ export default function Home() {
     isStart: boolean;
     isEnd: boolean;
     isAi: boolean;
+    isUser: boolean;
   };
   type Grid = Cell[][];
 
@@ -89,6 +90,22 @@ export default function Home() {
     }
   }
 
+  function userColorChange(inputRow: number, inputCol: number): void {
+    setGridData((prevGrid: Grid) => {
+      return prevGrid.map((row, rIndex) => {
+        if (rIndex === inputRow) {
+          return row.map((cell, cIndex) => {
+            if (cIndex === inputCol) {
+              return { ...cell, isUser: true };
+            }
+            return cell;
+          });
+        }
+        return row;
+      });
+    });
+  }
+
   function clearAiPath() {
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
@@ -127,6 +144,7 @@ export default function Home() {
         touchedCells.current.has(`${row},${col}`)
       ) {
         setIsDragging(true);
+        touchedCells.current.add(`${row},${col}`);
         console.log("start");
       }
     }
@@ -135,10 +153,17 @@ export default function Home() {
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
     if (isDragging) {
       const touch = event.touches[0];
-      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const rowString = target?.getAttribute("data-row");
+      const colString = target?.getAttribute("data-col");
 
-      console.log(element?.getAttribute("data-row"));
-      console.log(element?.getAttribute("data-col"));
+      if (rowString && colString) {
+        const row = parseInt(rowString);
+        const col = parseInt(colString);
+        console.log(row, col);
+        touchedCells.current.add(`${row},${col}`);
+        userColorChange(row, col);
+      }
     }
   }
 
@@ -194,6 +219,7 @@ export default function Home() {
                 isStart={cell.isStart}
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
+                isUser={cell.isUser}
                 onClick={() => {
                   // handleCellClick(rowIndex, columnIndex);
                 }}
