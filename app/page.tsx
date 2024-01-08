@@ -138,6 +138,8 @@ export default function Home() {
       const row = parseInt(rowString);
       const col = parseInt(colString);
 
+      if (gridData[row][col].isDark) return;
+
       if (gridData[row][col].isStart || gridData[row][col].isUser) {
         touchedCells.current.add(`${row},${col}`);
         setIsDragging(true);
@@ -148,6 +150,7 @@ export default function Home() {
 
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
     if (isDragging) {
+      console.log("drag");
       const touch = event.touches[0];
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
       const rowString = target?.getAttribute("data-row");
@@ -156,19 +159,23 @@ export default function Home() {
       if (rowString && colString) {
         const row = parseInt(rowString);
         const col = parseInt(colString);
+
+        if (
+          gridData[row][col].isDark ||
+          touchedCells.current.has(`${row},${col}`)
+        ) {
+          return;
+        }
+
         const up = `${row - 1},${col}`;
         const down = `${row + 1},${col}`;
         const right = `${row},${col + 1}`;
         const left = `${row},${col - 1}`;
 
-        if (gridData[row][col].isDark) {
-          return;
-        }
-
         if (
-          touchedCells.current.has(up) ||
           touchedCells.current.has(down) ||
           touchedCells.current.has(right) ||
+          touchedCells.current.has(up) ||
           touchedCells.current.has(left)
         ) {
           touchedCells.current.add(`${row},${col}`);
