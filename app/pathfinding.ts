@@ -33,7 +33,6 @@ function findPaths(
   endPos: [number, number]
 ) {
   let visited: Set<string> = new Set();
-  let randomNum = Math.random() > 0.5;
   let finalPath: [number, number][];
   let distance = calcDistance(startPos, endPos);
   let stack = [{ row: startPos[0], col: startPos[1] }];
@@ -62,33 +61,17 @@ function findPaths(
       }
     }
 
-    if (randomNum) {
-      if (col < grid[0].length - 1) {
-        let right = grid[row][col + 1];
-        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-          stack.push({ row: row, col: col + 1 });
-        }
+    if (row < grid.length - 1) {
+      let down = grid[row + 1][col];
+      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+        stack.push({ row: row + 1, col: col });
       }
+    }
 
-      if (row < grid.length - 1) {
-        let down = grid[row + 1][col];
-        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-          stack.push({ row: row + 1, col: col });
-        }
-      }
-    } else {
-      if (row < grid.length - 1) {
-        let down = grid[row + 1][col];
-        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-          stack.push({ row: row + 1, col: col });
-        }
-      }
-
-      if (col < grid[0].length - 1) {
-        let right = grid[row][col + 1];
-        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-          stack.push({ row: row, col: col + 1 });
-        }
+    if (col < grid[0].length - 1) {
+      let right = grid[row][col + 1];
+      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+        stack.push({ row: row, col: col + 1 });
       }
     }
   }

@@ -71,7 +71,7 @@ export default function Home() {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
 
-      await delay(75);
+      await delay(100);
 
       setGridData((prevGrid: Grid) => {
         const newGrid = [...prevGrid];
