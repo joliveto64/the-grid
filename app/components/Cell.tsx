@@ -17,7 +17,7 @@ export default function Cell(props: {
     } else if (props.isDark) {
       return "bg-stone-600 active:bg-stone-400";
     } else if (props.isUser && props.isAi) {
-      return "bg-gradient-to-b from-blue-400 to-yellow-300";
+      return "bg-gradient-to-tr from-15% from-blue-400 to-yellow-300";
     } else if (props.isUser) {
       return "bg-blue-400";
     } else if (props.isAi) {

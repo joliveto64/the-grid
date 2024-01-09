@@ -61,7 +61,6 @@ export default function Home() {
     });
 
     const object = exploreMaze(gridCopy);
-    console.log(object);
 
     if (object?.path) {
       aiColorChange(object.path);
@@ -133,35 +132,21 @@ export default function Home() {
     }
   }
 
-  function clearPath() {
-    stopAi.current = true;
-    setGridData((prevGrid) => {
-      return prevGrid.map((row, rIndex) => {
-        return row.map((cell, cIndex) => {
-          if (cell.isEnd || cell.isStart) {
+  function clearPath(r: number, c: number) {
+    setGridData((prevGrid) =>
+      prevGrid.map((row, rIndex) =>
+        row.map((cell, cIndex) => {
+          if (cell.isStart) {
             return cell;
+          } else if (r === rIndex && c === cIndex) {
+            return { ...cell, isUser: false };
           } else {
-            return { ...cell, isDark: true };
+            return cell;
           }
-        });
-      });
-    });
+        })
+      )
+    );
   }
-
-  function cellExists(row: number, col: number) {
-    if (
-      row > 0 &&
-      row < gridData.length &&
-      col > 0 &&
-      col < gridData[0].length
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  console.log(touchedCells);
 
   function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
@@ -173,6 +158,16 @@ export default function Home() {
       const col = parseInt(colString);
 
       if (gridData[row][col].isDark) return;
+      if (touchedCells.current.has(`${row},${col}`)) {
+        clearPath(row, col);
+
+        if (gridData[row][col]) {
+          if (!gridData[row][col].isStart) {
+            touchedCells.current.delete(`${row},${col}`);
+          }
+        }
+        return;
+      }
 
       const up = `${row - 1},${col}`;
       const down = `${row + 1},${col}`;
@@ -190,18 +185,17 @@ export default function Home() {
         touchedCells.current.add(`${row},${col}`);
         userColorChange(row, col);
         setIsDragging(true);
-        console.log("start");
       }
     }
   }
 
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
     if (isDragging) {
-      console.log("drag");
       const touch = event.touches[0];
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
       const rowString = target?.getAttribute("data-row");
       const colString = target?.getAttribute("data-col");
+      console.log("drag");
 
       if (rowString && colString) {
         const row = parseInt(rowString);
@@ -234,7 +228,6 @@ export default function Home() {
 
   function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
     setIsDragging(false);
-    console.log("end");
   }
 
   return (

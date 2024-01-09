@@ -76,7 +76,6 @@ function findPaths(
     }
   }
 
-  console.log("no path");
   finalPath = convertCoords(visited);
   return { hasPath: false, path: finalPath };
 }
