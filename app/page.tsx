@@ -7,7 +7,6 @@ import { createMaze } from "./createMaze";
 
 // TODO: make user solve then AI solve after. Doesn't work well on top of each other
 // TODO: logic to improve corner swiping
-// TODO: allow cancel pathfinding
 // TODO: games modes: predict AI path, beat AI shortest path
 // TODO: -----user generated mazes for all modes, upload to supabase
 // TODO: -----logic to change pathfinding order
@@ -139,6 +138,19 @@ export default function Home() {
     });
   }
 
+  function cellExists(row: number, col: number) {
+    if (
+      row > 0 &&
+      row < gridData.length &&
+      col > 0 &&
+      col < gridData[0].length
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
     const rowString = target.getAttribute("data-row");
@@ -251,7 +263,7 @@ export default function Home() {
                 isAi={cell.isAi}
                 isUser={cell.isUser}
                 onClick={() => {
-                  handleCellClick(rowIndex, columnIndex);
+                  // handleCellClick(rowIndex, columnIndex);
                 }}
                 onTouchStart={(event) => {
                   handleTouchStart(event);
