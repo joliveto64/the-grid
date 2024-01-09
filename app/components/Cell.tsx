@@ -29,7 +29,7 @@ export default function Cell(props: {
 
   return (
     <div
-      className={`aspect-square w-full ${
+      className={`active:scale-125 aspect-square w-full ${
         //         68,64,60          231,229,228
         chooseColor()
       }`}

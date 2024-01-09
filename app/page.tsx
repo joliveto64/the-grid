@@ -6,6 +6,12 @@ import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
 // TODO: make user solve then AI solve after. Doesn't work well on top of each other
+// TODO: logic to improve corner swiping
+// TODO: allow cancel pathfinding
+// TODO: games modes: predict AI path, beat AI shortest path
+// TODO: -----user generated mazes for all modes, upload to supabase
+// TODO: -----logic to change pathfinding order
+// TODO: -----need better pathfinding for shortest path
 
 export default function Home() {
   const {
@@ -16,6 +22,7 @@ export default function Home() {
     isDragging,
     setIsDragging,
     touchedCells,
+    stopAi,
   } = useSharedState();
   type Cell = {
     isDark: boolean;
@@ -37,7 +44,7 @@ export default function Home() {
           return row.map((cell, cIndex) => {
             if (cIndex === columnIndex) {
               if (cell.isStart || cell.isEnd) return cell;
-              return { ...cell, isDark: !cell.isDark };
+              return { ...cell, isUser: !cell.isUser };
             }
             return cell;
           });
@@ -70,6 +77,8 @@ export default function Home() {
     for (let i = 0; i < array.length; i++) {
       let CurrRow = array[i][0];
       let CurrCol = array[i][1];
+
+      if (stopAi.current) return;
 
       await delay(100);
 
@@ -116,6 +125,7 @@ export default function Home() {
   }
 
   function clearPath() {
+    stopAi.current = true;
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         return row.map((cell, cIndex) => {
@@ -193,7 +203,7 @@ export default function Home() {
   return (
     <div className="App">
       <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
-        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 mb-4">
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24">
           <>
             <button
               className="landscape:mb-4"
@@ -206,6 +216,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => {
+                stopAi.current = false;
                 clearAiPath();
                 handleTestMaze(gridData);
               }}
@@ -240,7 +251,7 @@ export default function Home() {
                 isAi={cell.isAi}
                 isUser={cell.isUser}
                 onClick={() => {
-                  // handleCellClick(rowIndex, columnIndex);
+                  handleCellClick(rowIndex, columnIndex);
                 }}
                 onTouchStart={(event) => {
                   handleTouchStart(event);
@@ -249,20 +260,28 @@ export default function Home() {
             ))
           )}
         </div>
-        {/* <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
-          <button
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
+          {/* <button
             onClick={() => {
               clearPath();
               clearAiPath();
             }}
           >
             Clear All
+          </button> */}
+          <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span>
+          <button
+            onClick={() => {
+              stopAi.current = true;
+
+              setTimeout(() => {
+                clearAiPath();
+              }, 200);
+            }}
+          >
+            Clear AI Path
           </button>
-          <span className="landscape:mb-4 landscape:mt-4">
-            Cells: {countCells(gridData)}
-          </span>
-          <button onClick={clearAiPath}>Clear AI Path</button>
-        </div> */}
+        </div>
       </div>
     </div>
   );

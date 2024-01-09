@@ -7,3 +7,7 @@
     width: 95vh;
   }
 }
+
+body {
+  position: fixed;
+}
