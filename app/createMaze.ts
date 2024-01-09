@@ -21,7 +21,7 @@ function createGrid(rows: number, columns: number) {
           isStart: true,
           isEnd: false,
           isAi: false,
-          isUser: false,
+          isUser: true,
         });
       } else if (row === rows - 1 && column === columns - 1) {
         currentRow.push({

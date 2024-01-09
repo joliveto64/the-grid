@@ -123,6 +123,16 @@ export default function Home() {
     });
   }
 
+  function addStartToTouched() {
+    for (let r = 0; r < gridData.length; r++) {
+      for (let c = 0; c < gridData[r].length; c++) {
+        if (gridData[r][c].isStart) {
+          touchedCells.current.add(`${r},${c}`);
+        }
+      }
+    }
+  }
+
   function clearPath() {
     stopAi.current = true;
     setGridData((prevGrid) => {
@@ -151,6 +161,8 @@ export default function Home() {
     }
   }
 
+  console.log(touchedCells);
+
   function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
     const rowString = target.getAttribute("data-row");
@@ -162,8 +174,21 @@ export default function Home() {
 
       if (gridData[row][col].isDark) return;
 
-      if (gridData[row][col].isStart || gridData[row][col].isUser) {
+      const up = `${row - 1},${col}`;
+      const down = `${row + 1},${col}`;
+      const right = `${row},${col + 1}`;
+      const left = `${row},${col - 1}`;
+
+      if (
+        gridData[row][col].isStart ||
+        gridData[row][col].isUser ||
+        touchedCells.current.has(down) ||
+        touchedCells.current.has(right) ||
+        touchedCells.current.has(up) ||
+        touchedCells.current.has(left)
+      ) {
         touchedCells.current.add(`${row},${col}`);
+        userColorChange(row, col);
         setIsDragging(true);
         console.log("start");
       }
@@ -222,6 +247,7 @@ export default function Home() {
               onClick={() => {
                 touchedCells.current.clear();
                 setGridData(createMaze(gridSize, gridSize));
+                addStartToTouched();
               }}
             >
               New Maze!
