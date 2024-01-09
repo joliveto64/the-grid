@@ -1,7 +1,7 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
-import { PreventOpenSpace, countCells } from "./utils";
+import { countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
@@ -23,6 +23,7 @@ export default function Home() {
     touchedCells,
     stopAi,
   } = useSharedState();
+
   type Cell = {
     isDark: boolean;
     isStart: boolean;
@@ -31,27 +32,6 @@ export default function Home() {
     isUser: boolean;
   };
   type Grid = Cell[][];
-
-  function handleCellClick(rowIndex: number, columnIndex: number) {
-    if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
-      return;
-    }
-
-    setGridData((prevGrid) => {
-      return prevGrid.map((row, rIndex) => {
-        if (rIndex === rowIndex) {
-          return row.map((cell, cIndex) => {
-            if (cIndex === columnIndex) {
-              if (cell.isStart || cell.isEnd) return cell;
-              return { ...cell, isUser: !cell.isUser };
-            }
-            return cell;
-          });
-        }
-        return row;
-      });
-    });
-  }
 
   function handleTestMaze(grid: Grid) {
     let gridCopy = grid.map((row) => {
@@ -230,30 +210,47 @@ export default function Home() {
     setIsDragging(false);
   }
 
+  function handleGridSize(event: React.ChangeEvent<HTMLSelectElement>) {
+    let size = parseInt(event.target.value);
+    setGridData(createMaze(size, size));
+    setGridSize(size);
+    touchedCells.current.clear();
+    addStartToTouched();
+
+    stopAi.current = true;
+    setTimeout(() => {
+      clearAiPath();
+    }, 100);
+  }
+
+  function handleNewMaze() {
+    touchedCells.current.clear();
+    setGridData(createMaze(gridSize, gridSize));
+    addStartToTouched();
+  }
+
+  function handleAISolve() {
+    stopAi.current = false;
+    clearAiPath();
+    handleTestMaze(gridData);
+  }
+
   return (
     <div className="App">
       <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24">
           <>
-            <button
-              className="landscape:mb-4"
-              onClick={() => {
-                touchedCells.current.clear();
-                setGridData(createMaze(gridSize, gridSize));
-                addStartToTouched();
-              }}
-            >
+            <button className="landscape:mb-4" onClick={handleNewMaze}>
               New Maze!
             </button>
-            <button
-              onClick={() => {
-                stopAi.current = false;
-                clearAiPath();
-                handleTestMaze(gridData);
-              }}
-            >
-              AI solve
-            </button>
+            <button onClick={handleAISolve}>AI solve</button>
+            <select value={gridSize} onChange={handleGridSize}>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+            </select>
           </>
         </div>
         <div
@@ -281,9 +278,6 @@ export default function Home() {
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
                 isUser={cell.isUser}
-                onClick={() => {
-                  // handleCellClick(rowIndex, columnIndex);
-                }}
                 onTouchStart={(event) => {
                   handleTouchStart(event);
                 }}
@@ -292,14 +286,6 @@ export default function Home() {
           )}
         </div>
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
-          {/* <button
-            onClick={() => {
-              clearPath();
-              clearAiPath();
-            }}
-          >
-            Clear All
-          </button> */}
           <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span>
           <button
             onClick={() => {
@@ -307,7 +293,7 @@ export default function Home() {
 
               setTimeout(() => {
                 clearAiPath();
-              }, 200);
+              }, 100);
             }}
           >
             Clear AI Path

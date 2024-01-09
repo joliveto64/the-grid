@@ -4,7 +4,6 @@ export default function Cell(props: {
   isEnd: boolean;
   isAi: boolean;
   isUser: boolean;
-  onClick: () => void;
   dataRow: number;
   dataCol: number;
   onTouchStart?: (event: React.TouchEvent<HTMLDivElement>) => void;
@@ -29,11 +28,7 @@ export default function Cell(props: {
 
   return (
     <div
-      className={`active:scale-125 aspect-square w-full ${
-        //         68,64,60          231,229,228
-        chooseColor()
-      }`}
-      onClick={props.onClick}
+      className={`active:scale-125 aspect-square w-full ${chooseColor()}`}
       onTouchStart={props.onTouchStart}
       data-row={props.dataRow}
       data-col={props.dataCol}
