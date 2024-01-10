@@ -13,4 +13,7 @@ body {
   overscroll-behavior-y: none;
   touch-action: manipulation;
   overflow: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
