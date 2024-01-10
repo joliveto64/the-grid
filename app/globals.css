@@ -11,4 +11,6 @@
 body {
   position: fixed;
   overscroll-behavior-y: none;
+  touch-action: manipulation;
+  overflow: hidden;
 }
