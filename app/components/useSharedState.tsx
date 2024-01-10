@@ -6,6 +6,7 @@ export default function useSharedState() {
   const [gridData, setGridData] = useState(createGrid(gridSize, gridSize));
   const [isDragging, setIsDragging] = useState(false);
   const stopAi = useRef<boolean>(false);
+  const lastTouchEnd = useRef<number>(0);
   const touchedCells = useRef<Set<string>>(new Set());
 
   return {
@@ -17,5 +18,6 @@ export default function useSharedState() {
     gridSize,
     setGridSize,
     touchedCells,
+    lastTouchEnd,
   };
 }

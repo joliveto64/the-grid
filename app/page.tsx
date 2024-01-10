@@ -22,6 +22,7 @@ export default function Home() {
     setIsDragging,
     touchedCells,
     stopAi,
+    lastTouchEnd,
   } = useSharedState();
 
   type Grid = {
@@ -218,6 +219,11 @@ export default function Home() {
   }
 
   function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    const currentTime = new Date().getTime();
+    if (currentTime - lastTouchEnd.current <= 300) {
+      event.preventDefault();
+    }
+    lastTouchEnd.current = currentTime;
     setIsDragging(false);
   }
 
