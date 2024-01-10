@@ -1,157 +1,94 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
-import { PreventOpenSpace, countCells } from "./utils";
+import { countCells } from "./utils";
+import { exploreMaze } from "./pathfinding";
+import { createMaze } from "./createMaze";
+
+// TODO: make user solve then AI solve after. Doesn't work well on top of each other
+// TODO: logic to improve corner swiping
+// TODO: games modes: predict AI path, beat AI shortest path
+// TODO: -----user generated mazes for all modes, upload to supabase
+// TODO: -----logic to change pathfinding order
+// TODO: -----need better pathfinding for shortest path
+// TODO: needs refactoring
 
 export default function Home() {
   const {
-    numCells,
-    setNumCells,
     gridData,
     setGridData,
-    aiMoving,
-    setAiMoving,
+    gridSize,
+    setGridSize,
+    isDragging,
+    setIsDragging,
+    touchedCells,
+    stopAi,
   } = useSharedState();
 
-  // update state on cells to change color
-  function handleCellClick(rowIndex: number, columnIndex: number) {
-    if (PreventOpenSpace(rowIndex, columnIndex, gridData)) {
-      return;
-    }
-
-    setGridData((prevGrid) => {
-      return prevGrid.map((row, rIndex) => {
-        if (rIndex === rowIndex) {
-          return row.map((cell, cIndex) => {
-            if (cIndex === columnIndex) {
-              if (cell.isStart || cell.isEnd) return cell;
-              return { ...cell, isDark: !cell.isDark };
-            }
-            return cell;
-          });
-        }
-        return row;
-      });
-    });
-  }
-
-  function handleTestMaze() {
-    exploreMaze(gridData);
-  }
-
-  // AI LOGIC
-  interface Cell {
+  type Grid = {
     isDark: boolean;
     isStart: boolean;
     isEnd: boolean;
     isAi: boolean;
-  }
-  type Grid = Cell[][];
+    isUser: boolean;
+  }[][];
 
-  // to update ai movement
-  // accepts row/col/grid setter from explore maze
-  function aiColorChange(CurrRow: number, CurrCol: number) {
-    setGridData((prevGrid: Grid) => {
-      return prevGrid.map((row, rIndex) => {
-        if (rIndex === CurrRow) {
-          return row.map((col, cIndex) => {
-            if (cIndex === CurrCol) {
-              return { ...col, isAi: true };
-            }
-            return col;
-          });
-        }
-        return row;
+  // AI MAZE SOLVE ////////////////////////////////////
+  function handleTestMaze(grid: Grid) {
+    stopAi.current = false;
+    clearAiPath();
+
+    let gridCopy = grid.map((row) => {
+      return row.map((cell) => {
+        return { ...cell };
       });
     });
-  }
 
-  // fath finding algorithm for maze
-  // passing in the grid and the grid setting function
-  function exploreMaze(grid: Grid) {
-    if (!grid) return;
+    const object = exploreMaze(gridCopy);
 
-    // let visited = new Set<string>();
-    let hasPath;
-    // loop over to find starting cell
-    for (let r = 0; r < grid.length; r++) {
-      for (let c = 0; c < grid[r].length; c++) {
-        if (grid[r][c].isStart === true) {
-          // call finPath from starting cell
-          hasPath = findPaths(grid, r, c);
-        }
-      }
+    if (object?.path) {
+      aiColorChange(object.path);
     }
-
-    return hasPath;
   }
 
-  function sleep(ms: number) {
+  function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function findPaths(grid: Grid, startRow: number, startCol: number) {
-    let stack = [
-      { row: startRow, col: startCol, cell: grid[startRow][startCol] },
-    ];
-    let visited = new Set();
+  async function aiColorChange(array: [number, number][]): Promise<void> {
+    for (let i = 0; i < array.length; i++) {
+      let CurrRow = array[i][0];
+      let CurrCol = array[i][1];
 
-    try {
-      while (stack.length > 0) {
-        let { row, col, cell } = stack.pop()!;
+      if (stopAi.current) return;
 
-        // update color for AI path
-        aiColorChange(row, col);
+      await delay(100);
 
-        if (cell.isEnd) {
-          setAiMoving(false);
-          return true;
-        }
-        let pos = row + "," + col;
-        visited.add(pos);
+      setGridData((prevGrid: Grid) => {
+        const newGrid = [...prevGrid];
 
-        await sleep(200);
-
-        if (row > 0) {
-          let up = grid[row - 1][col];
-          if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-            stack.push({ row: row - 1, col: col, cell: up });
-          }
+        if (newGrid[CurrRow] && newGrid[CurrRow][CurrCol]) {
+          newGrid[CurrRow] = [...newGrid[CurrRow]];
+          newGrid[CurrRow][CurrCol] = {
+            ...newGrid[CurrRow][CurrCol],
+            isAi: true,
+          };
         }
 
-        if (col > 0) {
-          let left = grid[row][col - 1];
-          if (!left.isDark && !visited.has(row + "," + (col - 1))) {
-            stack.push({ row: row, col: col - 1, cell: left });
-          }
-        }
-
-        if (row < grid.length - 1) {
-          let down = grid[row + 1][col];
-          if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-            stack.push({ row: row + 1, col: col, cell: down });
-          }
-        }
-
-        if (col < grid[0].length - 1) {
-          let right = grid[row][col + 1];
-          if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-            stack.push({ row: row, col: col + 1, cell: right });
-          }
-        }
-      }
-    } catch (error) {
-      console.log("Error occured with AI pathfinding:", error);
-    } finally {
-      setAiMoving(false);
+        return newGrid;
+      });
     }
+  }
 
-    alert("Path must connect the green and red squares");
-    return false;
+  function resetAi() {
+    stopAi.current = true;
+
+    setTimeout(() => {
+      clearAiPath();
+    }, 100);
   }
 
   function clearAiPath() {
-    if (aiMoving) return;
     setGridData((prevGrid) => {
       return prevGrid.map((row, rIndex) => {
         return row.map((cell, cIndex) => {
@@ -161,81 +98,209 @@ export default function Home() {
     });
   }
 
-  function clearPath() {
-    if (aiMoving) return;
-    setGridData((prevGrid) => {
-      return prevGrid.map((row, rIndex) => {
-        return row.map((cell, cIndex) => {
-          if (cell.isEnd || cell.isStart) {
-            return cell;
-          } else {
-            return { ...cell, isDark: true };
-          }
-        });
-      });
+  function userColorChange(inputRow: number, inputCol: number): void {
+    setGridData((prevGrid: Grid) => {
+      const newGrid = [...prevGrid];
+
+      if (newGrid[inputRow] && newGrid[inputRow][inputCol]) {
+        newGrid[inputRow] = [...newGrid[inputRow]];
+        newGrid[inputRow][inputCol] = {
+          ...newGrid[inputRow][inputCol],
+          isUser: true,
+        };
+      }
+
+      return newGrid;
     });
   }
 
+  function addStartToTouched() {
+    for (let r = 0; r < gridData.length; r++) {
+      for (let c = 0; c < gridData[r].length; c++) {
+        if (gridData[r][c].isStart) {
+          touchedCells.current.add(`${r},${c}`);
+        }
+      }
+    }
+  }
+
+  function clearPath(r: number, c: number) {
+    setGridData((prevGrid) =>
+      prevGrid.map((row, rIndex) =>
+        row.map((cell, cIndex) => {
+          if (cell.isStart) {
+            return cell;
+          } else if (r === rIndex && c === cIndex) {
+            return { ...cell, isUser: false };
+          } else {
+            return cell;
+          }
+        })
+      )
+    );
+  }
+
+  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
+    const rowString = target.getAttribute("data-row");
+    const colString = target.getAttribute("data-col");
+
+    if (rowString && colString) {
+      const row = parseInt(rowString);
+      const col = parseInt(colString);
+
+      if (gridData[row][col].isDark) return;
+      if (touchedCells.current.has(`${row},${col}`)) {
+        clearPath(row, col);
+
+        if (gridData[row][col]) {
+          if (!gridData[row][col].isStart) {
+            touchedCells.current.delete(`${row},${col}`);
+          }
+        }
+        return;
+      }
+
+      const up = `${row - 1},${col}`;
+      const down = `${row + 1},${col}`;
+      const right = `${row},${col + 1}`;
+      const left = `${row},${col - 1}`;
+
+      if (
+        gridData[row][col].isStart ||
+        gridData[row][col].isUser ||
+        touchedCells.current.has(down) ||
+        touchedCells.current.has(right) ||
+        touchedCells.current.has(up) ||
+        touchedCells.current.has(left)
+      ) {
+        touchedCells.current.add(`${row},${col}`);
+        userColorChange(row, col);
+        setIsDragging(true);
+      }
+    }
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    if (isDragging) {
+      const touch = event.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const rowString = target?.getAttribute("data-row");
+      const colString = target?.getAttribute("data-col");
+      console.log("drag");
+
+      if (rowString && colString) {
+        const row = parseInt(rowString);
+        const col = parseInt(colString);
+
+        if (
+          gridData[row][col].isDark ||
+          touchedCells.current.has(`${row},${col}`)
+        ) {
+          return;
+        }
+
+        const up = `${row - 1},${col}`;
+        const down = `${row + 1},${col}`;
+        const right = `${row},${col + 1}`;
+        const left = `${row},${col - 1}`;
+
+        if (
+          touchedCells.current.has(down) ||
+          touchedCells.current.has(right) ||
+          touchedCells.current.has(up) ||
+          touchedCells.current.has(left)
+        ) {
+          touchedCells.current.add(`${row},${col}`);
+          userColorChange(row, col);
+        }
+      }
+    }
+  }
+
+  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    setIsDragging(false);
+  }
+
+  function handleChangeGridSize(event: React.ChangeEvent<HTMLSelectElement>) {
+    let size = parseInt(event.target.value);
+    setGridData(createMaze(size, size));
+    setGridSize(size);
+    touchedCells.current.clear();
+    addStartToTouched();
+
+    resetAi();
+  }
+
+  function handleNewMaze() {
+    touchedCells.current.clear();
+    setGridData(createMaze(gridSize, gridSize));
+    addStartToTouched();
+  }
+
   return (
-    <>
-      <div className="h-screen w-screen flex flex-col justify-center items-center bg-stone-200">
-        <div className="w-full flex justify-evenly">
+    <div className="App">
+      <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24">
           <>
+            <button className="landscape:mb-4" onClick={handleNewMaze}>
+              New Maze!
+            </button>
             <button
               onClick={() => {
-                if (!aiMoving) {
-                  setAiMoving(true);
-                  clearAiPath();
-                  handleTestMaze();
-                }
+                handleTestMaze(gridData);
               }}
             >
-              Test Maze
+              AI solve
             </button>
-            <button onClick={clearAiPath}>Clear AI Path</button>
+            <select value={gridSize} onChange={handleChangeGridSize}>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+            </select>
           </>
         </div>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${numCells}, 1fr)`,
-            gridTemplateRows: `repeat(${numCells}, 1fr)`,
+            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+            gridTemplateRows: `repeat(${gridSize}, 1fr)`,
             gap: "0.1rem",
             padding: ".5rem",
-            borderWidth: "4px",
-            borderColor: "rgb(68 64 60)",
+            border: "none",
             backgroundColor: "rgb(120 113 108)",
           }}
-          className={`w-screen border-4 border-gray-800`}
+          className={`portrait:w-full border-4 border-gray-800 landscape:width-vh`}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {gridData.map((row, rowIndex) =>
             row.map((cell, columnIndex) => (
               <Cell
                 key={`${rowIndex}-${columnIndex}`}
+                dataRow={rowIndex}
+                dataCol={columnIndex}
                 isDark={cell.isDark}
                 isStart={cell.isStart}
                 isEnd={cell.isEnd}
                 isAi={cell.isAi}
-                onClick={() => {
-                  if (!aiMoving) {
-                    handleCellClick(rowIndex, columnIndex);
-                  }
+                isUser={cell.isUser}
+                onTouchStart={(event) => {
+                  handleTouchStart(event);
                 }}
               />
             ))
           )}
         </div>
-        <div className="w-full flex justify-evenly">
-          <button onClick={clearPath}>Clear Path</button>
-          <span>Cells: {countCells(gridData)}</span>
+        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
+          <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span>
+          <button onClick={resetAi}>Clear AI Path</button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
-
-// TODO: mihai recs: make grid controller class (separate file), define grid functions within the class
-// have separate grid that is for the UI
-// gris class only deals with updating grid information, separate functions to change the UI
-
-// NOTES: just have UI state which is the current state. Then, move the pathfinding to its own file. Create deep copies of the grid state with only the required information included and pass that grid data into the path logic function call. sleep can be abstracted and passed in. After pathfinding, data is sent to colorChange which updates the UE separate from the pathfinding logic. see chat gpt conversation
