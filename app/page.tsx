@@ -11,6 +11,7 @@ import { createMaze } from "./createMaze";
 // TODO: -----user generated mazes for all modes, upload to supabase
 // TODO: -----logic to change pathfinding order
 // TODO: -----need better pathfinding for shortest path
+// TODO: needs refactoring
 
 export default function Home() {
   const {
@@ -24,16 +25,19 @@ export default function Home() {
     stopAi,
   } = useSharedState();
 
-  type Cell = {
+  type Grid = {
     isDark: boolean;
     isStart: boolean;
     isEnd: boolean;
     isAi: boolean;
     isUser: boolean;
-  };
-  type Grid = Cell[][];
+  }[][];
 
+  // AI MAZE SOLVE ////////////////////////////////////
   function handleTestMaze(grid: Grid) {
+    stopAi.current = false;
+    clearAiPath();
+
     let gridCopy = grid.map((row) => {
       return row.map((cell) => {
         return { ...cell };
@@ -76,6 +80,24 @@ export default function Home() {
     }
   }
 
+  function resetAi() {
+    stopAi.current = true;
+
+    setTimeout(() => {
+      clearAiPath();
+    }, 100);
+  }
+
+  function clearAiPath() {
+    setGridData((prevGrid) => {
+      return prevGrid.map((row, rIndex) => {
+        return row.map((cell, cIndex) => {
+          return { ...cell, isAi: false };
+        });
+      });
+    });
+  }
+
   function userColorChange(inputRow: number, inputCol: number): void {
     setGridData((prevGrid: Grid) => {
       const newGrid = [...prevGrid];
@@ -89,16 +111,6 @@ export default function Home() {
       }
 
       return newGrid;
-    });
-  }
-
-  function clearAiPath() {
-    setGridData((prevGrid) => {
-      return prevGrid.map((row, rIndex) => {
-        return row.map((cell, cIndex) => {
-          return { ...cell, isAi: false };
-        });
-      });
     });
   }
 
@@ -210,29 +222,20 @@ export default function Home() {
     setIsDragging(false);
   }
 
-  function handleGridSize(event: React.ChangeEvent<HTMLSelectElement>) {
+  function handleChangeGridSize(event: React.ChangeEvent<HTMLSelectElement>) {
     let size = parseInt(event.target.value);
     setGridData(createMaze(size, size));
     setGridSize(size);
     touchedCells.current.clear();
     addStartToTouched();
 
-    stopAi.current = true;
-    setTimeout(() => {
-      clearAiPath();
-    }, 100);
+    resetAi();
   }
 
   function handleNewMaze() {
     touchedCells.current.clear();
     setGridData(createMaze(gridSize, gridSize));
     addStartToTouched();
-  }
-
-  function handleAISolve() {
-    stopAi.current = false;
-    clearAiPath();
-    handleTestMaze(gridData);
   }
 
   return (
@@ -243,13 +246,21 @@ export default function Home() {
             <button className="landscape:mb-4" onClick={handleNewMaze}>
               New Maze!
             </button>
-            <button onClick={handleAISolve}>AI solve</button>
-            <select value={gridSize} onChange={handleGridSize}>
+            <button
+              onClick={() => {
+                handleTestMaze(gridData);
+              }}
+            >
+              AI solve
+            </button>
+            <select value={gridSize} onChange={handleChangeGridSize}>
+              <option value="5">5</option>
               <option value="10">10</option>
               <option value="15">15</option>
               <option value="20">20</option>
               <option value="25">25</option>
               <option value="30">30</option>
+              <option value="50">50</option>
             </select>
           </>
         </div>
@@ -287,17 +298,7 @@ export default function Home() {
         </div>
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
           <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span>
-          <button
-            onClick={() => {
-              stopAi.current = true;
-
-              setTimeout(() => {
-                clearAiPath();
-              }, 100);
-            }}
-          >
-            Clear AI Path
-          </button>
+          <button onClick={resetAi}>Clear AI Path</button>
         </div>
       </div>
     </div>
