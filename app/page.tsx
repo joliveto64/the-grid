@@ -220,7 +220,7 @@ export default function Home() {
 
   function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
     const currentTime = new Date().getTime();
-    if (currentTime - lastTouchEnd.current <= 300) {
+    if (currentTime - lastTouchEnd.current <= 500) {
       event.preventDefault();
     }
     lastTouchEnd.current = currentTime;
