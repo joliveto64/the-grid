@@ -10,4 +10,5 @@
 
 body {
   position: fixed;
+  overscroll-behavior-y: contain;
 }

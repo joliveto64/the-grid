@@ -5,13 +5,12 @@ import { countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
-// TODO: make user solve then AI solve after. Doesn't work well on top of each other
-// TODO: logic to improve corner swiping
-// TODO: games modes: predict AI path, beat AI shortest path
-// TODO: -----user generated mazes for all modes, upload to supabase
-// TODO: -----logic to change pathfinding order
-// TODO: -----need better pathfinding for shortest path
-// TODO: needs refactoring
+// TODO: make user solve then AI solve after
+// TODO: score the difference (ex: AI 20 cells, user 18 overlap, score: 90%)
+// TODO: remove dragging if keeping in browser, doesn't work on safari due to browser gestures like swipe down to reload, double tap to zoom out
+// TODO: standalone is possibility, unsure about browser gestures or how this would work
+// TODO: change onTouchStart to onClick, will work for touch & mouse
+// TODO: needs general refactoring
 
 export default function Home() {
   const {
