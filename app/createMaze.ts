@@ -1,14 +1,13 @@
 import { exploreMaze } from "./pathfinding";
 import { PreventOpenSpace } from "./utils";
 
-interface Cell {
+type Grid = {
   isDark: boolean;
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
   isUser: boolean;
-}
-type Grid = Cell[][];
+}[][];
 
 function createGrid(rows: number, columns: number) {
   const grid = [];

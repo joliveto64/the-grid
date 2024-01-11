@@ -5,12 +5,9 @@ import { countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
-// TODO: make user solve then AI solve after
-// TODO: score the difference (ex: AI 20 cells, user 18 overlap, score: 90%)
-// TODO: remove dragging if keeping in browser, doesn't work on safari due to browser gestures like swipe down to reload, double tap to zoom out
-// TODO: standalone is possibility, unsure about browser gestures or how this would work
-// TODO: change onTouchStart to onClick, will work for touch & mouse
-// TODO: needs general refactoring
+// TODO: pick 1 gamemode
+// TODO: add supabase functionality
+// TODO: give grid indepenednt zoom
 
 export default function Home() {
   const {
@@ -23,6 +20,8 @@ export default function Home() {
     touchedCells,
     stopAi,
     lastTouchEnd,
+    isDfs,
+    setisDfs,
   } = useSharedState();
 
   type Grid = {
@@ -33,7 +32,7 @@ export default function Home() {
     isUser: boolean;
   }[][];
 
-  // AI MAZE SOLVE ////////////////////////////////////
+  // AI FUNCTIONS ////////////////////////////////////
   function handleTestMaze(grid: Grid) {
     stopAi.current = false;
     clearAiPath();
@@ -98,6 +97,7 @@ export default function Home() {
     });
   }
 
+  // USER FUNCTIONS
   function userColorChange(inputRow: number, inputCol: number): void {
     setGridData((prevGrid: Grid) => {
       const newGrid = [...prevGrid];
@@ -140,6 +140,39 @@ export default function Home() {
     );
   }
 
+  function allowedToClick(row: number, col: number) {
+    const up = `${row - 1},${col}`;
+    const down = `${row + 1},${col}`;
+    const right = `${row},${col + 1}`;
+    const left = `${row},${col - 1}`;
+
+    if (gridData[row][col].isDark) return false;
+
+    if (
+      touchedCells.current.has(down) ||
+      touchedCells.current.has(right) ||
+      touchedCells.current.has(up) ||
+      touchedCells.current.has(left)
+    ) {
+      return true;
+    }
+  }
+
+  function handleClick(row: number, col: number) {
+    if (
+      touchedCells.current.has(`${row},${col}`) &&
+      !gridData[row][col]?.isStart &&
+      !gridData[row][col]?.isEnd
+    ) {
+      clearPath(row, col);
+      touchedCells.current.delete(`${row},${col}`);
+      return;
+    } else if (allowedToClick(row, col)) {
+      touchedCells.current.add(`${row},${col}`);
+      userColorChange(row, col);
+    }
+  }
+
   function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
     const rowString = target.getAttribute("data-row");
@@ -149,31 +182,17 @@ export default function Home() {
       const row = parseInt(rowString);
       const col = parseInt(colString);
 
-      if (gridData[row][col].isDark) return;
-      if (touchedCells.current.has(`${row},${col}`)) {
+      if (
+        touchedCells.current.has(`${row},${col}`) &&
+        !gridData[row][col]?.isStart &&
+        !gridData[row][col]?.isEnd
+      ) {
         clearPath(row, col);
-
-        if (gridData[row][col]) {
-          if (!gridData[row][col].isStart) {
-            touchedCells.current.delete(`${row},${col}`);
-          }
-        }
+        touchedCells.current.delete(`${row},${col}`);
         return;
       }
 
-      const up = `${row - 1},${col}`;
-      const down = `${row + 1},${col}`;
-      const right = `${row},${col + 1}`;
-      const left = `${row},${col - 1}`;
-
-      if (
-        gridData[row][col].isStart ||
-        gridData[row][col].isUser ||
-        touchedCells.current.has(down) ||
-        touchedCells.current.has(right) ||
-        touchedCells.current.has(up) ||
-        touchedCells.current.has(left)
-      ) {
+      if (allowedToClick(row, col)) {
         touchedCells.current.add(`${row},${col}`);
         userColorChange(row, col);
         setIsDragging(true);
@@ -187,30 +206,12 @@ export default function Home() {
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
       const rowString = target?.getAttribute("data-row");
       const colString = target?.getAttribute("data-col");
-      console.log("drag");
 
       if (rowString && colString) {
         const row = parseInt(rowString);
         const col = parseInt(colString);
 
-        if (
-          gridData[row][col].isDark ||
-          touchedCells.current.has(`${row},${col}`)
-        ) {
-          return;
-        }
-
-        const up = `${row - 1},${col}`;
-        const down = `${row + 1},${col}`;
-        const right = `${row},${col + 1}`;
-        const left = `${row},${col - 1}`;
-
-        if (
-          touchedCells.current.has(down) ||
-          touchedCells.current.has(right) ||
-          touchedCells.current.has(up) ||
-          touchedCells.current.has(left)
-        ) {
+        if (allowedToClick(row, col)) {
           touchedCells.current.add(`${row},${col}`);
           userColorChange(row, col);
         }
@@ -220,7 +221,7 @@ export default function Home() {
 
   function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
     const currentTime = new Date().getTime();
-    if (currentTime - lastTouchEnd.current <= 500) {
+    if (currentTime - lastTouchEnd.current <= 700) {
       event.preventDefault();
     }
     lastTouchEnd.current = currentTime;
@@ -252,20 +253,24 @@ export default function Home() {
               New Maze!
             </button>
             <button
+              className="landscape:mb-4"
               onClick={() => {
                 handleTestMaze(gridData);
               }}
             >
               AI solve
             </button>
-            <select value={gridSize} onChange={handleChangeGridSize}>
+            <label htmlFor="select">Size:</label>
+            <select
+              id="select"
+              value={gridSize}
+              onChange={handleChangeGridSize}
+            >
               <option value="5">5</option>
               <option value="10">10</option>
               <option value="15">15</option>
               <option value="20">20</option>
               <option value="25">25</option>
-              <option value="30">30</option>
-              <option value="50">50</option>
             </select>
           </>
         </div>
@@ -273,7 +278,7 @@ export default function Home() {
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-            gridTemplateRows: `repeat(${gridSize}, 1fr)`,
+            gridTemplateRows: `repeat(${Math.floor(gridSize)}, 1fr)`,
             gap: "0.1rem",
             padding: ".5rem",
             border: "none",
@@ -296,6 +301,9 @@ export default function Home() {
                 isUser={cell.isUser}
                 onTouchStart={(event) => {
                   handleTouchStart(event);
+                }}
+                onClick={() => {
+                  handleClick(rowIndex, columnIndex);
                 }}
               />
             ))

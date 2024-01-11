@@ -8,6 +8,7 @@ export default function useSharedState() {
   const stopAi = useRef<boolean>(false);
   const lastTouchEnd = useRef<number>(0);
   const touchedCells = useRef<Set<string>>(new Set());
+  const [isDfs, setisDfs] = useState(true);
 
   return {
     gridData,
@@ -19,5 +20,7 @@ export default function useSharedState() {
     setGridSize,
     touchedCells,
     lastTouchEnd,
+    isDfs,
+    setisDfs,
   };
 }
