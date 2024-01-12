@@ -83,12 +83,12 @@ export default function Home() {
       }
     }
 
-    let ratio: number = 0;
+    let ratio: number;
     if (userCount === aiCount && userCount === overlap) {
       ratio = 1;
     } else if (aiCount > userCount) {
       ratio = overlap / aiCount;
-    } else if (userCount > aiCount) {
+    } else {
       ratio = overlap / userCount;
     }
 
