@@ -3,6 +3,7 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
+import { useEffect } from "react";
 
 // TODO: predict ai path - most fun
 // TODO: randomize maybe 2-4 options for decision order
@@ -21,6 +22,10 @@ export default function Home() {
     setPathRightFirst,
     tempGridSize,
     setTempGridSize,
+    aiDone,
+    setAiDone,
+    userScore,
+    setUserScore,
   } = useSharedState();
 
   type Grid = {
@@ -64,6 +69,39 @@ export default function Home() {
     return numUserCells;
   }
 
+  function compareUserAi(grid: Grid) {
+    let overlap = 0;
+    let aiCount = 0;
+    let userCount = -1;
+    for (let r = 0; r < grid.length; r++) {
+      for (let c = 0; c < grid[0].length; c++) {
+        if (grid[r][c].isAi) {
+          aiCount++;
+        }
+        if (grid[r][c].isUser) userCount++;
+        if (grid[r][c].isUser && grid[r][c].isAi) overlap++;
+      }
+    }
+
+    let ratio: number = 0;
+    if (userCount === aiCount && userCount === overlap) {
+      ratio = 1;
+    } else if (aiCount > userCount) {
+      ratio = overlap / aiCount;
+    } else if (userCount > aiCount) {
+      ratio = overlap / userCount;
+    }
+
+    setUserScore((ratio * 100).toFixed(2) + "%");
+  }
+
+  useEffect(() => {
+    if (aiDone) {
+      compareUserAi(gridData);
+      setAiDone(false);
+    }
+  }, [aiDone]);
+
   function switchCurrentOrder(pathRightFirst: boolean) {
     setPathRightFirst(Math.random() > 0.5 ? pathRightFirst : !pathRightFirst);
   }
@@ -73,27 +111,31 @@ export default function Home() {
   }
 
   async function aiColorChange(array: [number, number][]): Promise<void> {
-    for (let i = 0; i < array.length; i++) {
-      let CurrRow = array[i][0];
-      let CurrCol = array[i][1];
+    try {
+      for (let i = 0; i < array.length; i++) {
+        let CurrRow = array[i][0];
+        let CurrCol = array[i][1];
 
-      if (stopAi.current) return;
+        if (stopAi.current) return;
 
-      await delay(100);
+        await delay(125);
 
-      setGridData((prevGrid: Grid) => {
-        const newGrid = [...prevGrid];
+        setGridData((prevGrid: Grid) => {
+          const newGrid = [...prevGrid];
 
-        if (newGrid[CurrRow] && newGrid[CurrRow][CurrCol]) {
-          newGrid[CurrRow] = [...newGrid[CurrRow]];
-          newGrid[CurrRow][CurrCol] = {
-            ...newGrid[CurrRow][CurrCol],
-            isAi: true,
-          };
-        }
+          if (newGrid[CurrRow] && newGrid[CurrRow][CurrCol]) {
+            newGrid[CurrRow] = [...newGrid[CurrRow]];
+            newGrid[CurrRow][CurrCol] = {
+              ...newGrid[CurrRow][CurrCol],
+              isAi: true,
+            };
+          }
 
-        return newGrid;
-      });
+          return newGrid;
+        });
+      }
+    } finally {
+      setAiDone(true);
     }
   }
 
@@ -200,6 +242,7 @@ export default function Home() {
     touchedCells.current.clear();
     addStartToTouched();
     switchCurrentOrder(pathRightFirst);
+    setUserScore("");
   }
 
   function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -277,6 +320,7 @@ export default function Home() {
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
           {/* <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span> */}
           {/* <button onClick={resetAi}>Clear AI Path</button> */}
+          <span>{`Score: ${userScore}`}</span>
         </div>
       </div>
     </div>
