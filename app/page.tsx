@@ -1,13 +1,13 @@
 "use client";
 import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
-import { countCells } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 
-// TODO: pick 1 gamemode
-// TODO: add supabase functionality
-// TODO: give grid indepenednt zoom
+// TODO: predict ai path - most fun
+// TODO: randomize maybe 2-4 options for decision order
+// TODO: make mazes and upload to SB
+// TODO: option to generate or use user maze
 
 export default function Home() {
   const {
@@ -15,13 +15,12 @@ export default function Home() {
     setGridData,
     gridSize,
     setGridSize,
-    isDragging,
-    setIsDragging,
     touchedCells,
     stopAi,
-    lastTouchEnd,
-    isDfs,
-    setisDfs,
+    pathRightFirst,
+    setPathRightFirst,
+    tempGridSize,
+    setTempGridSize,
   } = useSharedState();
 
   type Grid = {
@@ -34,6 +33,8 @@ export default function Home() {
 
   // AI FUNCTIONS ////////////////////////////////////
   function handleTestMaze(grid: Grid) {
+    if (countUserCells(grid) < gridSize * 2 - 3) return;
+
     stopAi.current = false;
     clearAiPath();
 
@@ -43,11 +44,28 @@ export default function Home() {
       });
     });
 
-    const object = exploreMaze(gridCopy);
+    const object = exploreMaze(gridCopy, pathRightFirst);
 
     if (object?.path) {
       aiColorChange(object.path);
     }
+  }
+
+  function countUserCells(grid: Grid) {
+    let numUserCells = 0;
+    for (let r = 0; r < gridData.length; r++) {
+      for (let c = 0; c < gridData[0].length; c++) {
+        if (grid[r][c].isUser) {
+          numUserCells++;
+        }
+      }
+    }
+
+    return numUserCells;
+  }
+
+  function switchCurrentOrder(pathRightFirst: boolean) {
+    setPathRightFirst(Math.random() > 0.5 ? pathRightFirst : !pathRightFirst);
   }
 
   function delay(ms: number): Promise<void> {
@@ -84,7 +102,7 @@ export default function Home() {
 
     setTimeout(() => {
       clearAiPath();
-    }, 100);
+    }, 80);
   }
 
   function clearAiPath() {
@@ -173,98 +191,45 @@ export default function Home() {
     }
   }
 
-  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
-    const target = event.target as HTMLElement;
-    const rowString = target.getAttribute("data-row");
-    const colString = target.getAttribute("data-col");
-
-    if (rowString && colString) {
-      const row = parseInt(rowString);
-      const col = parseInt(colString);
-
-      if (
-        touchedCells.current.has(`${row},${col}`) &&
-        !gridData[row][col]?.isStart &&
-        !gridData[row][col]?.isEnd
-      ) {
-        clearPath(row, col);
-        touchedCells.current.delete(`${row},${col}`);
-        return;
-      }
-
-      if (allowedToClick(row, col)) {
-        touchedCells.current.add(`${row},${col}`);
-        userColorChange(row, col);
-        setIsDragging(true);
-      }
-    }
-  }
-
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
-    if (isDragging) {
-      const touch = event.touches[0];
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      const rowString = target?.getAttribute("data-row");
-      const colString = target?.getAttribute("data-col");
-
-      if (rowString && colString) {
-        const row = parseInt(rowString);
-        const col = parseInt(colString);
-
-        if (allowedToClick(row, col)) {
-          touchedCells.current.add(`${row},${col}`);
-          userColorChange(row, col);
-        }
-      }
-    }
-  }
-
-  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
-    const currentTime = new Date().getTime();
-    if (currentTime - lastTouchEnd.current <= 700) {
-      event.preventDefault();
-    }
-    lastTouchEnd.current = currentTime;
-    setIsDragging(false);
-  }
-
-  function handleChangeGridSize(event: React.ChangeEvent<HTMLSelectElement>) {
-    let size = parseInt(event.target.value);
-    setGridData(createMaze(size, size));
-    setGridSize(size);
-    touchedCells.current.clear();
-    addStartToTouched();
-
+  function handleNewMazeButton() {
     resetAi();
+    const newGridSize = tempGridSize;
+    setGridSize(newGridSize);
+    setGridData(createMaze(newGridSize, newGridSize));
+
+    touchedCells.current.clear();
+    addStartToTouched();
+    switchCurrentOrder(pathRightFirst);
   }
 
-  function handleNewMaze() {
-    touchedCells.current.clear();
-    setGridData(createMaze(gridSize, gridSize));
-    addStartToTouched();
+  function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    let size = parseInt(event.target.value);
+    setTempGridSize(size);
   }
 
   return (
     <div className="App">
       <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24">
+          <span>Current order: {pathRightFirst ? "→↓←↑" : "↓→↑←"}</span>
           <>
-            <button className="landscape:mb-4" onClick={handleNewMaze}>
+            <button className="landscape:mb-4" onClick={handleNewMazeButton}>
               New Maze!
             </button>
             <button
+              disabled={false}
               className="landscape:mb-4"
               onClick={() => {
                 handleTestMaze(gridData);
               }}
             >
-              AI solve
+              Test AI
             </button>
             <label htmlFor="select">Size:</label>
             <select
               id="select"
-              value={gridSize}
-              onChange={handleChangeGridSize}
+              value={tempGridSize}
+              onChange={handleSelectChange}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -285,8 +250,8 @@ export default function Home() {
             backgroundColor: "rgb(120 113 108)",
           }}
           className={`portrait:w-full border-4 border-gray-800 landscape:width-vh`}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          // onTouchMove={handleTouchMove}
+          // onTouchEnd={handleTouchEnd}
         >
           {gridData.map((row, rowIndex) =>
             row.map((cell, columnIndex) => (
@@ -300,7 +265,7 @@ export default function Home() {
                 isAi={cell.isAi}
                 isUser={cell.isUser}
                 onTouchStart={(event) => {
-                  handleTouchStart(event);
+                  // handleTouchStart(event);
                 }}
                 onClick={() => {
                   handleClick(rowIndex, columnIndex);
@@ -310,8 +275,8 @@ export default function Home() {
           )}
         </div>
         <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
-          <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span>
-          <button onClick={resetAi}>Clear AI Path</button>
+          {/* <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span> */}
+          {/* <button onClick={resetAi}>Clear AI Path</button> */}
         </div>
       </div>
     </div>
