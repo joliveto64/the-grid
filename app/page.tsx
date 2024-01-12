@@ -237,7 +237,7 @@ export default function Home() {
     resetAi();
     const newGridSize = tempGridSize;
     setGridSize(newGridSize);
-    setGridData(createMaze(newGridSize, newGridSize));
+    setGridData(createMaze(newGridSize, newGridSize, pathRightFirst));
 
     touchedCells.current.clear();
     addStartToTouched();

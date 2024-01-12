@@ -60,12 +60,12 @@ function fillGrid(grid: Grid): Grid {
   return grid;
 }
 
-function createMaze(rows: number, cols: number) {
+function createMaze(rows: number, cols: number, pathRightFirst: boolean) {
   let validMazes = [];
   while (validMazes.length < 1) {
     let currentMaze = fillGrid(createGrid(rows, cols));
 
-    if (exploreMaze(currentMaze)?.hasPath) {
+    if (exploreMaze(currentMaze, pathRightFirst)?.hasPath) {
       validMazes.push(currentMaze);
     }
   }
