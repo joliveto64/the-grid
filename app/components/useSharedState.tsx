@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createGrid } from "../createMaze";
+import { supabase } from "../supabaseClient";
 
 export default function useSharedState() {
   const [tempGridSize, setTempGridSize] = useState(10);
@@ -11,6 +12,25 @@ export default function useSharedState() {
   const [pathRightFirst, setPathRightFirst] = useState(true);
   const [aiDone, setAiDone] = useState(false);
   const [userScore, setUserScore] = useState<string | number>("");
+  const [numMazes, setNumMazes] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchCount() {
+      const { data, error } = await supabase
+        .from("counter")
+        .select("count")
+        .eq("id", 1)
+        .single();
+
+      if (error) {
+        console.error("Error retrieving count:", error);
+      } else {
+        setNumMazes(data.count);
+      }
+    }
+
+    fetchCount();
+  }, []);
 
   return {
     gridData,
@@ -27,5 +47,7 @@ export default function useSharedState() {
     setAiDone,
     userScore,
     setUserScore,
+    numMazes,
+    setNumMazes,
   };
 }

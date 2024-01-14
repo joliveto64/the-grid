@@ -10,10 +10,10 @@
 
 body {
   /* position: fixed; */
-  overscroll-behavior-y: none;
+  /* overscroll-behavior-y: none; */
   /* touch-action: manipulation; */
   /* overflow: hidden; */
-  -webkit-touch-callout: none;
+  /* -webkit-touch-callout: none; */
   -webkit-user-select: none;
   user-select: none;
 }

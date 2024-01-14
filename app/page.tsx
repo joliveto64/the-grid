@@ -4,11 +4,11 @@ import useSharedState from "./components/useSharedState";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
 import { useEffect } from "react";
+import { supabase } from "./supabaseClient";
 
-// TODO: predict ai path - most fun
-// TODO: randomize maybe 2-4 options for decision order
-// TODO: make mazes and upload to SB
-// TODO: option to generate or use user maze
+// TODO: make supabase track number of mazes generated for now
+// TODO: can add more online features later if wanted
+// TODO: maybe add more orders for pathfinding
 
 export default function Home() {
   const {
@@ -26,6 +26,8 @@ export default function Home() {
     setAiDone,
     userScore,
     setUserScore,
+    numMazes,
+    setNumMazes,
   } = useSharedState();
 
   type Grid = {
@@ -37,6 +39,19 @@ export default function Home() {
   }[][];
 
   // AI FUNCTIONS ////////////////////////////////////
+  async function incrementCount(newCount: number) {
+    const { error: updateError } = await supabase
+      .from("counter")
+      .update({ count: newCount })
+      .eq("id", 1);
+
+    if (updateError) {
+      console.error("Error updating count:", updateError);
+    } else {
+      console.log("Updated Count");
+    }
+  }
+
   function handleTestMaze(grid: Grid) {
     if (countUserCells(grid) < gridSize * 2 - 3) return;
 
@@ -234,6 +249,10 @@ export default function Home() {
   }
 
   function handleNewMazeButton() {
+    const newNum = numMazes + 1;
+    setNumMazes(newNum);
+    incrementCount(newNum);
+
     resetAi();
     const newGridSize = tempGridSize;
     setGridSize(newGridSize);
@@ -321,6 +340,7 @@ export default function Home() {
           {/* <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span> */}
           {/* <button onClick={resetAi}>Clear AI Path</button> */}
           <span>{`Score: ${userScore}`}</span>
+          <span>{`Mazes generated: ${numMazes}`}</span>
         </div>
       </div>
     </div>
