@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "A Game About Mazes and Pathfinding Algorithms",
-  description: "An educational game.",
+  title: "The GRID",
+  description: "An educational game about pathfinding.",
 };
 
 export const viewport: Viewport = {
