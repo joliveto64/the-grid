@@ -27,6 +27,8 @@ export default function Home() {
     setUserScore,
     numMazes,
     setNumMazes,
+    showHowToPlay,
+    setShowHowToPlay,
   } = useSharedState();
 
   type Grid = {
@@ -285,8 +287,9 @@ export default function Home() {
             Go
           </button>
           <div>
-            <label htmlFor="select">Size:</label>
+            <label htmlFor="select">Size: </label>
             <select
+              className="select"
               id="select"
               value={tempGridSize}
               onChange={handleSelectChange}
@@ -335,13 +338,22 @@ export default function Home() {
         <span>{`Grids Generated: ${numMazes}`}</span>
       </div>
       <span className="how-to-play">
-        <strong>How to play: </strong>fill out the grid to predict the path the
+        <strong
+          onClick={() => {
+            setShowHowToPlay(!showHowToPlay);
+          }}
+        >
+          How to play
+        </strong>
+        {showHowToPlay
+          ? `: fill out the grid to predict the path the
         AI will take to solve the maze. The current order dictates the
-        computer's decision-making. If the order is →↓←↑, for every cell in the
-        grid, the computer will always go right if possible. If it can't go
-        right, it will go down, if it can't go down, it will go up. If the
-        computer hits a dead-end, it will revert to the most recently skipped
-        path. Fill out the grid and press "Go" when you're ready, good luck!{" "}
+        computer's decision-making. If the order is →↓←↑, the computer will
+        always go right if possible. If it can't go right, it will go down. If
+        it can't go down, it will go left. If it can't go left, it will go up.
+        If the computer hits a dead-end, it will revert to the most recently
+        skipped path. Fill out the grid and press "Go" when you're ready!`
+          : ""}{" "}
       </span>
     </div>
   );
