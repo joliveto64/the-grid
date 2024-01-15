@@ -6,9 +6,8 @@ import { createMaze } from "./createMaze";
 import { useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
-// TODO: make supabase track number of mazes generated for now
-// TODO: can add more online features later if wanted
 // TODO: maybe add more orders for pathfinding
+// TODO: add click + drag for desktop
 
 export default function Home() {
   const {
@@ -107,7 +106,7 @@ export default function Home() {
       ratio = overlap / userCount;
     }
 
-    setUserScore((ratio * 100).toFixed(2) + "%");
+    setUserScore(Math.round(ratio * 100) + "%");
   }
 
   useEffect(() => {
@@ -271,22 +270,21 @@ export default function Home() {
 
   return (
     <div className="App">
-      <div className="h-screen w-screen p-2 flex flex-col justify-center items-center bg-stone-200 landscape:flex-row landscape:justify-evenly">
-        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24">
-          <span>Current order: {pathRightFirst ? "→↓←↑" : "↓→↑←"}</span>
-          <>
-            <button className="landscape:mb-4" onClick={handleNewMazeButton}>
-              New Maze!
-            </button>
-            <button
-              disabled={false}
-              className="landscape:mb-4"
-              onClick={() => {
-                handleTestMaze(gridData);
-              }}
-            >
-              Test AI
-            </button>
+      <div className="top-info">
+        <span className="current-order">
+          Current order: {pathRightFirst ? "→↓←↑" : "↓→↑←"}
+        </span>
+        <div className="top-buttons">
+          <button onClick={handleNewMazeButton}>New Grid</button>
+          <button
+            disabled={false}
+            onClick={() => {
+              handleTestMaze(gridData);
+            }}
+          >
+            Go
+          </button>
+          <div>
             <label htmlFor="select">Size:</label>
             <select
               id="select"
@@ -297,52 +295,54 @@ export default function Home() {
               <option value="10">10</option>
               <option value="15">15</option>
               <option value="20">20</option>
-              <option value="25">25</option>
             </select>
-          </>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-            gridTemplateRows: `repeat(${Math.floor(gridSize)}, 1fr)`,
-            gap: "0.1rem",
-            padding: ".5rem",
-            border: "none",
-            backgroundColor: "rgb(120 113 108)",
-          }}
-          className={`portrait:w-full border-4 border-gray-800 landscape:width-vh`}
-          // onTouchMove={handleTouchMove}
-          // onTouchEnd={handleTouchEnd}
-        >
-          {gridData.map((row, rowIndex) =>
-            row.map((cell, columnIndex) => (
-              <Cell
-                key={`${rowIndex}-${columnIndex}`}
-                dataRow={rowIndex}
-                dataCol={columnIndex}
-                isDark={cell.isDark}
-                isStart={cell.isStart}
-                isEnd={cell.isEnd}
-                isAi={cell.isAi}
-                isUser={cell.isUser}
-                onTouchStart={(event) => {
-                  // handleTouchStart(event);
-                }}
-                onClick={() => {
-                  handleClick(rowIndex, columnIndex);
-                }}
-              />
-            ))
-          )}
-        </div>
-        <div className="w-full flex justify-evenly landscape:flex-col landscape:items-center landscape:w-24 landscape:text-center mt-4">
-          {/* <span className="landscape:mb-4 ">Cells: {countCells(gridData)}</span> */}
-          {/* <button onClick={resetAi}>Clear AI Path</button> */}
-          <span>{`Score: ${userScore}`}</span>
-          <span>{`Mazes generated: ${numMazes}`}</span>
+          </div>
         </div>
       </div>
+      <div
+        className="grid"
+        style={{
+          gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
+          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+        }}
+        // onTouchMove={handleTouchMove}
+        // onTouchEnd={handleTouchEnd}
+      >
+        {gridData.map((row, rowIndex) =>
+          row.map((cell, columnIndex) => (
+            <Cell
+              key={`${rowIndex}-${columnIndex}`}
+              dataRow={rowIndex}
+              dataCol={columnIndex}
+              isDark={cell.isDark}
+              isStart={cell.isStart}
+              isEnd={cell.isEnd}
+              isAi={cell.isAi}
+              isUser={cell.isUser}
+              onTouchStart={(event) => {
+                // handleTouchStart(event);
+              }}
+              onClick={() => {
+                handleClick(rowIndex, columnIndex);
+              }}
+            />
+          ))
+        )}
+      </div>
+      <div className="bottom-info">
+        {/* <button onClick={resetAi}>Clear AI Path</button> */}
+        <span>{`Score: ${userScore}`}</span>
+        <span>{`Grids Generated: ${numMazes}`}</span>
+      </div>
+      <span className="how-to-play">
+        <strong>How to play: </strong>fill out the grid to predict the path the
+        AI will take to solve the maze. The current order dictates the
+        computer's decision-making. If the order is →↓←↑, for every cell in the
+        grid, the computer will always go right if possible. If it can't go
+        right, it will go down, if it can't go down, it will go up. If the
+        computer hits a dead-end, it will revert to the most recently skipped
+        path. Fill out the grid and press "Go" when you're ready, good luck!{" "}
+      </span>
     </div>
   );
 }
