@@ -12,7 +12,8 @@ export default function useSharedState() {
   const [aiDone, setAiDone] = useState(false);
   const [userScore, setUserScore] = useState<string | number>("");
   const [numMazes, setNumMazes] = useState<number>();
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(true);
+  const randomNum = useRef<number>(0);
 
   useEffect(() => {
     async function fetchCount() {
@@ -49,5 +50,6 @@ export default function useSharedState() {
     setNumMazes,
     showHowToPlay,
     setShowHowToPlay,
+    randomNum,
   };
 }

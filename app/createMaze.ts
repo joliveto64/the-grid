@@ -61,8 +61,7 @@ function fillGrid(grid: Grid): Grid {
   return grid;
 }
 
-function createMaze(rows: number, cols: number) {
-  let randomNum = Math.floor(Math.random() * 4);
+function createMaze(rows: number, cols: number, randomNum: number) {
   let validMazes = [];
   while (validMazes.length < 1) {
     let currentMaze = fillGrid(createGrid(rows, cols, randomNum));

@@ -37,58 +37,119 @@ function findPaths(grid: Grid, startPos: [number, number]) {
 
     visited.add(row + "," + col);
 
-    if (row > 0) {
-      let up = grid[row - 1][col];
-      if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-        stack.push({ row: row - 1, col: col });
+    if (startPos[0] === 0 && startPos[1] === 0) {
+      if (row > 0) {
+        let up = grid[row - 1][col];
+        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+          stack.push({ row: row - 1, col: col });
+        }
       }
-    }
 
-    if (col > 0) {
-      let left = grid[row][col - 1];
-      if (!left.isDark && !visited.has(row + "," + (col - 1))) {
-        stack.push({ row: row, col: col - 1 });
+      if (col > 0) {
+        let left = grid[row][col - 1];
+        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+          stack.push({ row: row, col: col - 1 });
+        }
       }
-    }
 
-    if (row < grid.length - 1) {
-      let down = grid[row + 1][col];
-      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-        stack.push({ row: row + 1, col: col });
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col });
+        }
       }
-    }
 
-    if (col < grid[0].length - 1) {
-      let right = grid[row][col + 1];
-      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-        stack.push({ row: row, col: col + 1 });
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1 });
+        }
       }
-    }
-    if (col > 0) {
-      let left = grid[row][col - 1];
-      if (!left.isDark && !visited.has(row + "," + (col - 1))) {
-        stack.push({ row: row, col: col - 1 });
+    } else if (startPos[0] === 0 && startPos[1] === grid[0].length - 1) {
+      if (row > 0) {
+        let up = grid[row - 1][col];
+        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+          stack.push({ row: row - 1, col: col });
+        }
       }
-    }
 
-    if (row > 0) {
-      let up = grid[row - 1][col];
-      if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-        stack.push({ row: row - 1, col: col });
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1 });
+        }
       }
-    }
 
-    if (col < grid[0].length - 1) {
-      let right = grid[row][col + 1];
-      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-        stack.push({ row: row, col: col + 1 });
+      if (col > 0) {
+        let left = grid[row][col - 1];
+        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+          stack.push({ row: row, col: col - 1 });
+        }
       }
-    }
 
-    if (row < grid.length - 1) {
-      let down = grid[row + 1][col];
-      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-        stack.push({ row: row + 1, col: col });
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col });
+        }
+      }
+    } else if (
+      startPos[0] === grid.length - 1 &&
+      startPos[1] === grid[0].length - 1
+    ) {
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1 });
+        }
+      }
+
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col });
+        }
+      }
+
+      if (row > 0) {
+        let up = grid[row - 1][col];
+        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+          stack.push({ row: row - 1, col: col });
+        }
+      }
+      if (col > 0) {
+        let left = grid[row][col - 1];
+        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+          stack.push({ row: row, col: col - 1 });
+        }
+      }
+    } else if (startPos[0] === grid.length - 1 && startPos[1] === 0) {
+      if (row < grid.length - 1) {
+        let down = grid[row + 1][col];
+        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+          stack.push({ row: row + 1, col: col });
+        }
+      }
+
+      if (col > 0) {
+        let left = grid[row][col - 1];
+        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+          stack.push({ row: row, col: col - 1 });
+        }
+      }
+
+      if (row > 0) {
+        let up = grid[row - 1][col];
+        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+          stack.push({ row: row - 1, col: col });
+        }
+      }
+
+      if (col < grid[0].length - 1) {
+        let right = grid[row][col + 1];
+        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+          stack.push({ row: row, col: col + 1 });
+        }
       }
     }
   }

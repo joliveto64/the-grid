@@ -23,7 +23,7 @@ export default function Cell(props: {
     } else if (props.isAi) {
       return "#fcd34d";
     } else {
-      return "#e5e7eb";
+      return "#F5F5F5";
     }
   }
 
@@ -32,7 +32,7 @@ export default function Cell(props: {
       style={{
         transition: ".1s all",
         background: ` ${chooseColor()}`,
-        border: props.isUser && props.isAi ? "6px solid #fcd34d" : "",
+        border: props.isUser && props.isAi ? ".25rem solid #fcd34d" : "",
         aspectRatio: "1/1",
       }}
       onTouchStart={props.onTouchStart}
