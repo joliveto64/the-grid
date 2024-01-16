@@ -9,12 +9,13 @@ type Grid = {
   isUser: boolean;
 }[][];
 
-function createGrid(rows: number, columns: number) {
+function createGrid(rows: number, columns: number, rand: number) {
+  let dir = getDirection(rows, rand);
   const grid = [];
   for (let row = 0; row < rows; row++) {
     const currentRow = [];
     for (let column = 0; column < columns; column++) {
-      if (row === 0 && column === 0) {
+      if (row === dir.startRow && column === dir.startCol) {
         currentRow.push({
           isDark: false,
           isStart: true,
@@ -22,7 +23,7 @@ function createGrid(rows: number, columns: number) {
           isAi: false,
           isUser: true,
         });
-      } else if (row === rows - 1 && column === columns - 1) {
+      } else if (row === dir.endRow && column === dir.endCol) {
         currentRow.push({
           isDark: false,
           isStart: false,
@@ -60,12 +61,12 @@ function fillGrid(grid: Grid): Grid {
   return grid;
 }
 
-function createMaze(rows: number, cols: number, pathRightFirst: boolean) {
+function createMaze(rows: number, cols: number, randomNum: number) {
   let validMazes = [];
   while (validMazes.length < 1) {
-    let currentMaze = fillGrid(createGrid(rows, cols));
+    let currentMaze = fillGrid(createGrid(rows, cols, randomNum));
 
-    if (exploreMaze(currentMaze, pathRightFirst)?.hasPath) {
+    if (exploreMaze(currentMaze)?.hasPath) {
       validMazes.push(currentMaze);
     }
   }
@@ -73,17 +74,39 @@ function createMaze(rows: number, cols: number, pathRightFirst: boolean) {
   return validMazes[0];
 }
 
-function determineDirection() {
-  let randomNum = Math.random();
-
-  if (randomNum < 0.25) {
-    return "BR";
-  } else if (randomNum >= 0.25 && randomNum < 0.5) {
-    return "BL";
-  } else if (randomNum >= 0.5 && randomNum < 0.75) {
-    return "TL";
+function getDirection(gridSize: number, randomNum: number) {
+  if (randomNum === 0) {
+    return {
+      dir: "BR",
+      startRow: 0,
+      startCol: 0,
+      endRow: gridSize - 1,
+      endCol: gridSize - 1,
+    };
+  } else if (randomNum === 1) {
+    return {
+      dir: "BL",
+      startRow: 0,
+      startCol: gridSize - 1,
+      endRow: gridSize - 1,
+      endCol: 0,
+    };
+  } else if (randomNum === 2) {
+    return {
+      dir: "TL",
+      startRow: gridSize - 1,
+      startCol: gridSize - 1,
+      endRow: 0,
+      endCol: 0,
+    };
   } else {
-    return "TR";
+    return {
+      dir: "TR",
+      startRow: gridSize - 1,
+      startCol: 0,
+      endRow: 0,
+      endCol: gridSize - 1,
+    };
   }
 }
 

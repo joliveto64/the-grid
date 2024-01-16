@@ -3,7 +3,7 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "./supabaseClient";
 
 // TODO: maybe add more orders for pathfinding
@@ -17,8 +17,6 @@ export default function Home() {
     setGridSize,
     touchedCells,
     stopAi,
-    pathRightFirst,
-    setPathRightFirst,
     tempGridSize,
     setTempGridSize,
     aiDone,
@@ -29,6 +27,7 @@ export default function Home() {
     setNumMazes,
     showHowToPlay,
     setShowHowToPlay,
+    randomNum,
   } = useSharedState();
 
   type Grid = {
@@ -48,14 +47,10 @@ export default function Home() {
 
     if (updateError) {
       console.error("Error updating count:", updateError);
-    } else {
-      console.log("Updated Count");
     }
   }
 
   function handleTestMaze(grid: Grid) {
-    if (countUserCells(grid) < gridSize * 2 - 3) return;
-
     stopAi.current = false;
     clearAiPath();
 
@@ -65,27 +60,14 @@ export default function Home() {
       });
     });
 
-    const object = exploreMaze(gridCopy, pathRightFirst);
+    const object = exploreMaze(gridCopy);
 
     if (object?.path) {
       aiColorChange(object.path);
     }
   }
 
-  function countUserCells(grid: Grid) {
-    let numUserCells = 0;
-    for (let r = 0; r < gridData.length; r++) {
-      for (let c = 0; c < gridData[0].length; c++) {
-        if (grid[r][c].isUser) {
-          numUserCells++;
-        }
-      }
-    }
-
-    return numUserCells;
-  }
-
-  function compareUserAi(grid: Grid) {
+  function gradeUser(grid: Grid) {
     let overlap = 0;
     let aiCount = 0;
     let userCount = -1;
@@ -113,14 +95,10 @@ export default function Home() {
 
   useEffect(() => {
     if (aiDone) {
-      compareUserAi(gridData);
+      gradeUser(gridData);
       setAiDone(false);
     }
   }, [aiDone]);
-
-  function switchCurrentOrder(pathRightFirst: boolean) {
-    setPathRightFirst(Math.random() > 0.5 ? pathRightFirst : !pathRightFirst);
-  }
 
   function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -160,7 +138,7 @@ export default function Home() {
 
     setTimeout(() => {
       clearAiPath();
-    }, 80);
+    }, 150);
   }
 
   function clearAiPath() {
@@ -222,7 +200,9 @@ export default function Home() {
     const right = `${row},${col + 1}`;
     const left = `${row},${col - 1}`;
 
-    if (gridData[row][col].isDark) return false;
+    if (gridData[row][col].isDark) {
+      return false;
+    }
 
     if (
       touchedCells.current.has(down) ||
@@ -232,6 +212,7 @@ export default function Home() {
     ) {
       return true;
     }
+    return false;
   }
 
   function handleClick(row: number, col: number) {
@@ -250,92 +231,114 @@ export default function Home() {
   }
 
   function handleNewMazeButton() {
-    const newNum = numMazes + 1;
-    setNumMazes(newNum);
-    incrementCount(newNum);
+    if (numMazes && numMazes > 0) {
+      const newNum = numMazes + 1;
+      setNumMazes(newNum);
+      incrementCount(newNum);
+    }
 
     resetAi();
     const newGridSize = tempGridSize;
     setGridSize(newGridSize);
-    setGridData(createMaze(newGridSize, newGridSize, pathRightFirst));
+    randomNum.current = Math.floor(Math.random() * 4);
+    setGridData(createMaze(newGridSize, newGridSize, randomNum.current));
 
     touchedCells.current.clear();
-    addStartToTouched();
-    switchCurrentOrder(pathRightFirst);
     setUserScore("");
   }
+
+  useEffect(() => {
+    addStartToTouched();
+  }, [gridData]);
 
   function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
     let size = parseInt(event.target.value);
     setTempGridSize(size);
   }
 
+  function orderReadout(randomNum: number) {
+    if (randomNum === 0) {
+      return "→ ↓ ← ↑";
+    } else if (randomNum === 1) {
+      return "↓ ← → ↑";
+    } else if (randomNum === 2) {
+      return "← ↑ ↓ →";
+    } else if (randomNum === 3) {
+      return "→ ↑ ← ↓";
+    }
+  }
+
   return (
     <div className="App">
-      <div className="top-info">
-        <span className="current-order">
-          Current order: {pathRightFirst ? "→↓←↑" : "↓→↑←"}
-        </span>
-        <div className="top-buttons">
-          <button onClick={handleNewMazeButton}>New Grid</button>
-          <button
-            disabled={false}
-            onClick={() => {
-              handleTestMaze(gridData);
-            }}
-          >
-            Go
-          </button>
-          <div>
-            <label htmlFor="select">Size: </label>
-            <select
-              className="select"
-              id="select"
-              value={tempGridSize}
-              onChange={handleSelectChange}
+      <div className="main-content">
+        <div className="top-info">
+          <span className="current-order">
+            {orderReadout(randomNum.current)}
+          </span>
+          <div className="top-buttons">
+            <button onClick={handleNewMazeButton}>New Grid</button>
+            <button
+              disabled={false}
+              onClick={() => {
+                handleTestMaze(gridData);
+              }}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-            </select>
+              Go
+            </button>
+            <div>
+              <label htmlFor="select">Size: </label>
+              <select
+                className="select"
+                id="select"
+                value={tempGridSize}
+                onChange={handleSelectChange}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="grid"
-        style={{
-          gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
-          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-        }}
-        // onTouchMove={handleTouchMove}
-        // onTouchEnd={handleTouchEnd}
-      >
-        {gridData.map((row, rowIndex) =>
-          row.map((cell, columnIndex) => (
-            <Cell
-              key={`${rowIndex}-${columnIndex}`}
-              dataRow={rowIndex}
-              dataCol={columnIndex}
-              isDark={cell.isDark}
-              isStart={cell.isStart}
-              isEnd={cell.isEnd}
-              isAi={cell.isAi}
-              isUser={cell.isUser}
-              onTouchStart={(event) => {
-                // handleTouchStart(event);
-              }}
-              onClick={() => {
-                handleClick(rowIndex, columnIndex);
-              }}
-            />
-          ))
-        )}
-      </div>
-      <div className="bottom-info">
-        {/* <button onClick={resetAi}>Clear AI Path</button> */}
-        <span>{`Score: ${userScore}`}</span>
-        <span>{`Grids Generated: ${numMazes}`}</span>
+        <div
+          className="grid"
+          style={{
+            gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
+            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+          }}
+          // onTouchMove={handleTouchMove}
+          // onTouchEnd={handleTouchEnd}
+        >
+          {gridData.map((row, rowIndex) =>
+            row.map((cell, columnIndex) => (
+              <Cell
+                key={`${rowIndex}-${columnIndex}`}
+                dataRow={rowIndex}
+                dataCol={columnIndex}
+                isDark={cell.isDark}
+                isStart={cell.isStart}
+                isEnd={cell.isEnd}
+                isAi={cell.isAi}
+                isUser={cell.isUser}
+                onTouchStart={(event) => {
+                  // handleTouchStart(event);
+                }}
+                onClick={() => {
+                  handleClick(rowIndex, columnIndex);
+                }}
+              />
+            ))
+          )}
+        </div>
+        <div className="bottom-info">
+          {/* <button onClick={resetAi}>Clear AI Path</button> */}
+          <span>{`Score: ${userScore}`}</span>
+          <span>{`Grids Generated: ${
+            numMazes ? numMazes : ["[no internet]"]
+          }`}</span>
+        </div>
       </div>
       <span className="how-to-play">
         <strong
@@ -343,16 +346,16 @@ export default function Home() {
             setShowHowToPlay(!showHowToPlay);
           }}
         >
-          How to play
+          How to play:
         </strong>
         {showHowToPlay
-          ? `: fill out the grid to predict the path the
+          ? ` fill out the grid to predict the path the
         AI will take to solve the maze. The current order dictates the
         computer's decision-making. If the order is →↓←↑, the computer will
         always go right if possible. If it can't go right, it will go down. If
         it can't go down, it will go left. If it can't go left, it will go up.
         If the computer hits a dead-end, it will revert to the most recently
-        skipped path. Fill out the grid and press "Go" when you're ready!`
+        skipped path. Fill out the grid and press "Go" when you're ready! If on mobile, turn your phone sideways for a closer view.`
           : ""}{" "}
       </span>
     </div>
