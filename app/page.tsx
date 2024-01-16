@@ -346,10 +346,10 @@ export default function Home() {
             setShowHowToPlay(!showHowToPlay);
           }}
         >
-          How to play
+          How to play:
         </strong>
         {showHowToPlay
-          ? `: fill out the grid to predict the path the
+          ? ` fill out the grid to predict the path the
         AI will take to solve the maze. The current order dictates the
         computer's decision-making. If the order is →↓←↑, the computer will
         always go right if possible. If it can't go right, it will go down. If
