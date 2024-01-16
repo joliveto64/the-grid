@@ -23,6 +23,7 @@ body {
 
 .select {
   background-color: whitesmoke;
+  cursor: pointer;
 }
 
 .current-order {
@@ -43,7 +44,7 @@ body {
   gap: 0.1rem;
   padding: 0.5rem;
   border: none;
-  background-color: rgb(120 113 108);
+  background-color: rgb(114, 114, 114);
   margin-block: 0.25rem;
 }
 
@@ -54,6 +55,7 @@ body {
 .how-to-play {
   font-weight: normal;
   line-height: 2rem;
+  cursor: pointer;
 }
 
 @media (min-width: 1024px) {

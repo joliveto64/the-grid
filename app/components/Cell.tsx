@@ -11,25 +11,30 @@ export default function Cell(props: {
 }) {
   function chooseColor() {
     if (props.isStart) {
-      return "bg-emerald-500";
+      return "#10b981";
     } else if (props.isEnd) {
-      return "bg-red-400";
+      return "#fb7185";
     } else if (props.isDark) {
-      return "bg-stone-600 active:bg-stone-400";
+      return "#4f5b66";
     } else if (props.isUser && props.isAi) {
-      return "bg-gradient-to-tr from-15% from-blue-400 to-yellow-300";
+      return "#60a5fa";
     } else if (props.isUser) {
-      return "bg-blue-400";
+      return "#60a5fa";
     } else if (props.isAi) {
-      return "bg-yellow-300";
+      return "#fcd34d";
     } else {
-      return "bg-stone-200";
+      return "#e5e7eb";
     }
   }
 
   return (
     <div
-      className={`aspect-square w-full ${chooseColor()}`}
+      style={{
+        transition: ".1s all",
+        background: ` ${chooseColor()}`,
+        border: props.isUser && props.isAi ? "6px solid #fcd34d" : "",
+        aspectRatio: "1/1",
+      }}
       onTouchStart={props.onTouchStart}
       data-row={props.dataRow}
       data-col={props.dataCol}

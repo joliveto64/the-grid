@@ -134,7 +134,7 @@ export default function Home() {
 
         if (stopAi.current) return;
 
-        await delay(125);
+        await delay(150);
 
         setGridData((prevGrid: Grid) => {
           const newGrid = [...prevGrid];

@@ -73,4 +73,18 @@ function createMaze(rows: number, cols: number, pathRightFirst: boolean) {
   return validMazes[0];
 }
 
+function determineDirection() {
+  let randomNum = Math.random();
+
+  if (randomNum < 0.25) {
+    return "BR";
+  } else if (randomNum >= 0.25 && randomNum < 0.5) {
+    return "BL";
+  } else if (randomNum >= 0.5 && randomNum < 0.75) {
+    return "TL";
+  } else {
+    return "TR";
+  }
+}
+
 export { createGrid, createMaze };
