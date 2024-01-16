@@ -6,7 +6,7 @@ type Cell = {
 };
 type Grid = Cell[][];
 
-function exploreMaze(grid: Grid, switchOrder: boolean) {
+function exploreMaze(grid: Grid) {
   if (!grid) return;
   let startPos: [number, number] = [0, 0];
 
@@ -19,15 +19,11 @@ function exploreMaze(grid: Grid, switchOrder: boolean) {
     }
   }
 
-  returnObject = findPaths(grid, startPos, switchOrder);
+  returnObject = findPaths(grid, startPos);
   return returnObject;
 }
 
-function findPaths(
-  grid: Grid,
-  startPos: [number, number],
-  switchOrder: boolean
-) {
+function findPaths(grid: Grid, startPos: [number, number]) {
   let visited: Set<string> = new Set();
   let stack = [{ row: startPos[0], col: startPos[1] }];
 
@@ -41,61 +37,58 @@ function findPaths(
 
     visited.add(row + "," + col);
 
-    if (switchOrder) {
-      if (row > 0) {
-        let up = grid[row - 1][col];
-        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-          stack.push({ row: row - 1, col: col });
-        }
+    if (row > 0) {
+      let up = grid[row - 1][col];
+      if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+        stack.push({ row: row - 1, col: col });
       }
+    }
 
-      if (col > 0) {
-        let left = grid[row][col - 1];
-        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
-          stack.push({ row: row, col: col - 1 });
-        }
+    if (col > 0) {
+      let left = grid[row][col - 1];
+      if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+        stack.push({ row: row, col: col - 1 });
       }
+    }
 
-      if (row < grid.length - 1) {
-        let down = grid[row + 1][col];
-        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-          stack.push({ row: row + 1, col: col });
-        }
+    if (row < grid.length - 1) {
+      let down = grid[row + 1][col];
+      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+        stack.push({ row: row + 1, col: col });
       }
+    }
 
-      if (col < grid[0].length - 1) {
-        let right = grid[row][col + 1];
-        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-          stack.push({ row: row, col: col + 1 });
-        }
+    if (col < grid[0].length - 1) {
+      let right = grid[row][col + 1];
+      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+        stack.push({ row: row, col: col + 1 });
       }
-    } else {
-      if (col > 0) {
-        let left = grid[row][col - 1];
-        if (!left.isDark && !visited.has(row + "," + (col - 1))) {
-          stack.push({ row: row, col: col - 1 });
-        }
+    }
+    if (col > 0) {
+      let left = grid[row][col - 1];
+      if (!left.isDark && !visited.has(row + "," + (col - 1))) {
+        stack.push({ row: row, col: col - 1 });
       }
+    }
 
-      if (row > 0) {
-        let up = grid[row - 1][col];
-        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-          stack.push({ row: row - 1, col: col });
-        }
+    if (row > 0) {
+      let up = grid[row - 1][col];
+      if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+        stack.push({ row: row - 1, col: col });
       }
+    }
 
-      if (col < grid[0].length - 1) {
-        let right = grid[row][col + 1];
-        if (!right.isDark && !visited.has(row + "," + (col + 1))) {
-          stack.push({ row: row, col: col + 1 });
-        }
+    if (col < grid[0].length - 1) {
+      let right = grid[row][col + 1];
+      if (!right.isDark && !visited.has(row + "," + (col + 1))) {
+        stack.push({ row: row, col: col + 1 });
       }
+    }
 
-      if (row < grid.length - 1) {
-        let down = grid[row + 1][col];
-        if (!down.isDark && !visited.has(row + 1 + "," + col)) {
-          stack.push({ row: row + 1, col: col });
-        }
+    if (row < grid.length - 1) {
+      let down = grid[row + 1][col];
+      if (!down.isDark && !visited.has(row + 1 + "," + col)) {
+        stack.push({ row: row + 1, col: col });
       }
     }
   }

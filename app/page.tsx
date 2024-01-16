@@ -17,8 +17,6 @@ export default function Home() {
     setGridSize,
     touchedCells,
     stopAi,
-    pathRightFirst,
-    setPathRightFirst,
     tempGridSize,
     setTempGridSize,
     aiDone,
@@ -48,14 +46,10 @@ export default function Home() {
 
     if (updateError) {
       console.error("Error updating count:", updateError);
-    } else {
-      console.log("Updated Count");
     }
   }
 
   function handleTestMaze(grid: Grid) {
-    if (countUserCells(grid) < gridSize * 2 - 3) return;
-
     stopAi.current = false;
     clearAiPath();
 
@@ -65,24 +59,11 @@ export default function Home() {
       });
     });
 
-    const object = exploreMaze(gridCopy, pathRightFirst);
+    const object = exploreMaze(gridCopy);
 
     if (object?.path) {
       aiColorChange(object.path);
     }
-  }
-
-  function countUserCells(grid: Grid) {
-    let numUserCells = 0;
-    for (let r = 0; r < gridData.length; r++) {
-      for (let c = 0; c < gridData[0].length; c++) {
-        if (grid[r][c].isUser) {
-          numUserCells++;
-        }
-      }
-    }
-
-    return numUserCells;
   }
 
   function compareUserAi(grid: Grid) {
@@ -117,10 +98,6 @@ export default function Home() {
       setAiDone(false);
     }
   }, [aiDone]);
-
-  function switchCurrentOrder(pathRightFirst: boolean) {
-    setPathRightFirst(Math.random() > 0.5 ? pathRightFirst : !pathRightFirst);
-  }
 
   function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -160,7 +137,7 @@ export default function Home() {
 
     setTimeout(() => {
       clearAiPath();
-    }, 80);
+    }, 150);
   }
 
   function clearAiPath() {
@@ -222,7 +199,9 @@ export default function Home() {
     const right = `${row},${col + 1}`;
     const left = `${row},${col - 1}`;
 
-    if (gridData[row][col].isDark) return false;
+    if (gridData[row][col].isDark) {
+      return false;
+    }
 
     if (
       touchedCells.current.has(down) ||
@@ -232,6 +211,7 @@ export default function Home() {
     ) {
       return true;
     }
+    return false;
   }
 
   function handleClick(row: number, col: number) {
@@ -250,19 +230,20 @@ export default function Home() {
   }
 
   function handleNewMazeButton() {
-    const newNum = numMazes + 1;
-    setNumMazes(newNum);
-    incrementCount(newNum);
+    if (numMazes && numMazes > 0) {
+      const newNum = numMazes + 1;
+      setNumMazes(newNum);
+      incrementCount(newNum);
+    }
 
     resetAi();
     const newGridSize = tempGridSize;
     setGridSize(newGridSize);
-    setGridData(createMaze(newGridSize, newGridSize, pathRightFirst));
+    setGridData(createMaze(newGridSize, newGridSize));
 
     touchedCells.current.clear();
-    addStartToTouched();
-    switchCurrentOrder(pathRightFirst);
     setUserScore("");
+    addStartToTouched();
   }
 
   function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -273,9 +254,7 @@ export default function Home() {
   return (
     <div className="App">
       <div className="top-info">
-        <span className="current-order">
-          Current order: {pathRightFirst ? "→↓←↑" : "↓→↑←"}
-        </span>
+        <span className="current-order">Current order: {"→↓←↑"}</span>
         <div className="top-buttons">
           <button onClick={handleNewMazeButton}>New Grid</button>
           <button
@@ -298,6 +277,7 @@ export default function Home() {
               <option value="10">10</option>
               <option value="15">15</option>
               <option value="20">20</option>
+              <option value="25">25</option>
             </select>
           </div>
         </div>
@@ -335,7 +315,9 @@ export default function Home() {
       <div className="bottom-info">
         {/* <button onClick={resetAi}>Clear AI Path</button> */}
         <span>{`Score: ${userScore}`}</span>
-        <span>{`Grids Generated: ${numMazes}`}</span>
+        <span>{`Grids Generated: ${
+          numMazes ? numMazes : ["[no internet]"]
+        }`}</span>
       </div>
       <span className="how-to-play">
         <strong
