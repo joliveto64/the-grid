@@ -63,7 +63,10 @@ function fillGrid(grid: Grid): Grid {
 
 function createMaze(rows: number, cols: number, randomNum: number) {
   let validMazes = [];
-  while (validMazes.length < 1) {
+  let count = 0;
+  while (validMazes.length < 1 && count < 500) {
+    count++;
+    console.log(count);
     let currentMaze = fillGrid(createGrid(rows, cols, randomNum));
 
     if (exploreMaze(currentMaze)?.hasPath) {
@@ -71,7 +74,12 @@ function createMaze(rows: number, cols: number, randomNum: number) {
     }
   }
 
-  return validMazes[0];
+  if (validMazes[0]) {
+    return validMazes[0];
+  } else {
+    console.log("Error: Generative threshold exceeded");
+    return createPlaceholder(rows, cols);
+  }
 }
 
 function getDirection(gridSize: number, randomNum: number) {
@@ -108,6 +116,41 @@ function getDirection(gridSize: number, randomNum: number) {
       endCol: gridSize - 1,
     };
   }
+}
+
+function createPlaceholder(rows: number, cols: number) {
+  let placeholder: Grid = [];
+  for (let r = 0; r < rows; r++) {
+    placeholder.push([]);
+    for (let c = 0; c < cols; c++) {
+      if (r === 0 && c === 0) {
+        placeholder[r].push({
+          isDark: false,
+          isStart: true,
+          isEnd: false,
+          isAi: false,
+          isUser: false,
+        });
+      } else if (r === rows - 1 && c === cols - 1) {
+        placeholder[r].push({
+          isDark: false,
+          isStart: false,
+          isEnd: true,
+          isAi: false,
+          isUser: false,
+        });
+      } else {
+        placeholder[r].push({
+          isDark: false,
+          isStart: false,
+          isEnd: false,
+          isAi: false,
+          isUser: false,
+        });
+      }
+    }
+  }
+  return placeholder;
 }
 
 export { createGrid, createMaze };
