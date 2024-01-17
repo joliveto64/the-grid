@@ -270,75 +270,73 @@ export default function Home() {
 
   return (
     <div className="App">
-      <div className="main-content">
-        <div className="top-info">
-          <span className="current-order">
-            {orderReadout(randomNum.current)}
-          </span>
-          <div className="top-buttons">
-            <button onClick={handleNewMazeButton}>New Grid</button>
-            <button
-              disabled={false}
-              onClick={() => {
-                handleTestMaze(gridData);
-              }}
-            >
-              Go
-            </button>
-            <div>
-              <label htmlFor="select">Size: </label>
-              <select
-                className="select"
-                id="select"
-                value={tempGridSize}
-                onChange={handleSelectChange}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="25">25</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div
-          className="grid"
-          style={{
-            gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
-            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+      <div className="top-info">
+        <span className="current-order">{orderReadout(randomNum.current)}</span>
+        <button
+          className="go-button"
+          disabled={false}
+          onClick={() => {
+            handleTestMaze(gridData);
           }}
-          // onTouchMove={handleTouchMove}
-          // onTouchEnd={handleTouchEnd}
         >
-          {gridData.map((row, rowIndex) =>
-            row.map((cell, columnIndex) => (
-              <Cell
-                key={`${rowIndex}-${columnIndex}`}
-                dataRow={rowIndex}
-                dataCol={columnIndex}
-                isDark={cell.isDark}
-                isStart={cell.isStart}
-                isEnd={cell.isEnd}
-                isAi={cell.isAi}
-                isUser={cell.isUser}
-                onTouchStart={(event) => {
-                  // handleTouchStart(event);
-                }}
-                onClick={() => {
-                  handleClick(rowIndex, columnIndex);
-                }}
-              />
-            ))
-          )}
+          Go
+        </button>
+        <button className="new-grid-button" onClick={handleNewMazeButton}>
+          New Grid
+        </button>
+        <div>
+          <label htmlFor="select">Size: </label>
+          <select
+            className="select"
+            id="select"
+            value={tempGridSize}
+            onChange={handleSelectChange}
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+          </select>
         </div>
-        <div className="bottom-info">
-          {/* <button onClick={resetAi}>Clear AI Path</button> */}
-          <span>{`Score: ${userScore}`}</span>
-          <span>{`Grids Generated: ${
-            numMazes ? numMazes : ["[no internet]"]
-          }`}</span>
-        </div>
+      </div>
+      <div
+        className="grid"
+        style={{
+          gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
+          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+        }}
+        // onTouchMove={handleTouchMove}
+        // onTouchEnd={handleTouchEnd}
+      >
+        {gridData.map((row, rowIndex) =>
+          row.map((cell, columnIndex) => (
+            <Cell
+              key={`${rowIndex}-${columnIndex}`}
+              dataRow={rowIndex}
+              dataCol={columnIndex}
+              isDark={cell.isDark}
+              isStart={cell.isStart}
+              isEnd={cell.isEnd}
+              isAi={cell.isAi}
+              isUser={cell.isUser}
+              onTouchStart={(event) => {
+                // handleTouchStart(event);
+              }}
+              onClick={() => {
+                handleClick(rowIndex, columnIndex);
+              }}
+            />
+          ))
+        )}
+      </div>
+      <div className="bottom-info">
+        {/* <button onClick={resetAi}>Clear AI Path</button> */}
+        <span>{`Score: ${userScore}`}</span>
+        <span>{`Grids Generated: ${
+          numMazes ? numMazes : ["[no internet]"]
+        }`}</span>
       </div>
       <span className="how-to-play">
         <strong

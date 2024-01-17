@@ -52,7 +52,7 @@ function fillGrid(grid: Grid): Grid {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       let randomNum = Math.random();
-      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.3) {
+      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.4) {
         grid[r][c] = { ...grid[r][c], isDark: false };
       }
     }
