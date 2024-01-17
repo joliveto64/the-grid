@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { createGrid, createMaze } from "../createMaze";
+import { createGrid } from "../createMaze";
 import { supabase } from "../supabaseClient";
 
 export default function useSharedState() {

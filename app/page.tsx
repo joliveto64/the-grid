@@ -282,13 +282,11 @@ export default function Home() {
           Go
         </button>
         <button className="new-grid-button" onClick={handleNewMazeButton}>
-          New Grid
+          New
         </button>
         <div>
-          <label htmlFor="select">Size: </label>
           <select
             className="select"
-            id="select"
             value={tempGridSize}
             onChange={handleSelectChange}
           >
@@ -348,8 +346,7 @@ export default function Home() {
         </strong>
         {showHowToPlay
           ? ` fill out the grid to predict the path the
-        AI will take to solve the maze. The current order dictates the
-        computer's decision-making. If the order is →↓←↑, the computer will
+        AI will take to solve the maze. If the order is →↓←↑, the computer will
         always go right if possible. If it can't go right, it will go down. If
         it can't go down, it will go left. If it can't go left, it will go up.
         If the computer hits a dead-end, it will revert to the most recently
