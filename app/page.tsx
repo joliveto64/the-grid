@@ -3,10 +3,9 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
-// TODO: add click + drag for desktop
 // TODO: refactor
 
 export default function Home() {
@@ -30,6 +29,8 @@ export default function Home() {
     randomNum,
     isDragging,
     setIsDragging,
+    scale,
+    setScale,
   } = useSharedState();
 
   type Grid = {
@@ -296,6 +297,14 @@ export default function Home() {
     setIsDragging(false);
   }
 
+  function changeGridScale() {
+    if (scale === 1) {
+      setScale(0.6);
+    } else {
+      setScale(1);
+    }
+  }
+
   return (
     <div className="App">
       <div className="top-info">
@@ -324,12 +333,16 @@ export default function Home() {
             <option value="20">20</option>
           </select>
         </div>
+        <span className="scale" onClick={changeGridScale}>
+          +/-
+        </span>
       </div>
       <div
         className="grid"
         style={{
           gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+          transform: `scale(${scale})`,
         }}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
@@ -354,7 +367,6 @@ export default function Home() {
         )}
       </div>
       <div className="bottom-info">
-        {/* <button onClick={resetAi}>Clear AI Path</button> */}
         <span>{`Score: ${userScore}`}</span>
         <span>{`Grids Generated: ${
           numMazes ? numMazes : ["[no internet]"]

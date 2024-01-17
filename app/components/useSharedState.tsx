@@ -14,6 +14,7 @@ export default function useSharedState() {
   const [numMazes, setNumMazes] = useState<number>();
   const [showHowToPlay, setShowHowToPlay] = useState(true);
   const randomNum = useRef<number>(0);
+  const [scale, setScale] = useState(1.0);
 
   useEffect(() => {
     async function fetchCount() {
@@ -53,5 +54,7 @@ export default function useSharedState() {
     randomNum,
     isDragging,
     setIsDragging,
+    scale,
+    setScale,
   };
 }

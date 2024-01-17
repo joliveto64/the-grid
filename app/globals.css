@@ -17,6 +17,7 @@ body {
 }
 
 .top-info {
+  z-index: 1;
   padding-block: 0.5rem;
   background-color: whitesmoke;
   position: fixed;
@@ -31,7 +32,8 @@ body {
 }
 
 .go-button:active,
-.new-grid-button:active {
+.new-grid-button:active,
+.scale:active {
   transform: scale(0.8);
 }
 
@@ -53,6 +55,11 @@ body {
   border: none;
   background-color: rgb(114, 114, 114);
   margin-block: 0.25rem;
+  transition: 0.3s;
+}
+
+.scale {
+  display: none;
 }
 
 .bottom-info {
@@ -64,6 +71,12 @@ body {
   line-height: 1.75rem;
   cursor: pointer;
   letter-spacing: 1px;
+}
+
+@media (min-width: 500px) {
+  .scale {
+    display: inline-flex;
+  }
 }
 
 @media (min-width: 960px) {
