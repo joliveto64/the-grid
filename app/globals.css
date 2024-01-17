@@ -81,7 +81,6 @@ body {
 
 @media (min-width: 960px) {
   body {
-    margin-inline: 10%;
     padding: 6rem 3rem 3rem 3rem;
   }
 }

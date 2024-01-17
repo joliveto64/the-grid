@@ -299,7 +299,7 @@ export default function Home() {
 
   function changeGridScale() {
     if (scale === 1) {
-      setScale(0.6);
+      setScale(0.5);
     } else {
       setScale(1);
     }
