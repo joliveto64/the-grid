@@ -52,6 +52,7 @@ function fillGrid(grid: Grid): Grid {
   for (let r = 0; r < grid.length; r++) {
     for (let c = 0; c < grid[r].length; c++) {
       let randomNum = Math.random();
+      // set % chance for cell becoming a path
       if (!PreventOpenSpace(r, c, grid) && randomNum > 0.4) {
         grid[r][c] = { ...grid[r][c], isDark: false };
       }
@@ -64,9 +65,9 @@ function fillGrid(grid: Grid): Grid {
 function createMaze(rows: number, cols: number, randomNum: number) {
   let validMazes = [];
   let count = 0;
-  while (validMazes.length < 1 && count < 500) {
+  // take first valid maze, stop at 1000 attempts / use placeholder
+  while (validMazes.length < 1 && count < 1000) {
     count++;
-    console.log(count);
     let currentMaze = fillGrid(createGrid(rows, cols, randomNum));
 
     if (exploreMaze(currentMaze)?.hasPath) {
@@ -77,7 +78,7 @@ function createMaze(rows: number, cols: number, randomNum: number) {
   if (validMazes[0]) {
     return validMazes[0];
   } else {
-    console.log("Error: Generative threshold exceeded");
+    console.log("Generative threshold exceeded");
     return createPlaceholder(rows, cols);
   }
 }

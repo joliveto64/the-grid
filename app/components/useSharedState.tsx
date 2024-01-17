@@ -51,5 +51,7 @@ export default function useSharedState() {
     showHowToPlay,
     setShowHowToPlay,
     randomNum,
+    isDragging,
+    setIsDragging,
   };
 }

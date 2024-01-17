@@ -6,8 +6,8 @@ import { createMaze } from "./createMaze";
 import { useEffect, useRef } from "react";
 import { supabase } from "./supabaseClient";
 
-// TODO: maybe add more orders for pathfinding
 // TODO: add click + drag for desktop
+// TODO: refactor
 
 export default function Home() {
   const {
@@ -28,6 +28,8 @@ export default function Home() {
     showHowToPlay,
     setShowHowToPlay,
     randomNum,
+    isDragging,
+    setIsDragging,
   } = useSharedState();
 
   type Grid = {
@@ -215,21 +217,6 @@ export default function Home() {
     return false;
   }
 
-  function handleClick(row: number, col: number) {
-    if (
-      touchedCells.current.has(`${row},${col}`) &&
-      !gridData[row][col]?.isStart &&
-      !gridData[row][col]?.isEnd
-    ) {
-      clearPath(row, col);
-      touchedCells.current.delete(`${row},${col}`);
-      return;
-    } else if (allowedToClick(row, col)) {
-      touchedCells.current.add(`${row},${col}`);
-      userColorChange(row, col);
-    }
-  }
-
   function handleNewMazeButton() {
     if (numMazes && numMazes > 0) {
       const newNum = numMazes + 1;
@@ -268,6 +255,47 @@ export default function Home() {
     }
   }
 
+  function handleClick(row: number, col: number) {
+    if (
+      touchedCells.current.has(`${row},${col}`) &&
+      !gridData[row][col]?.isStart &&
+      !gridData[row][col]?.isEnd
+    ) {
+      clearPath(row, col);
+      touchedCells.current.delete(`${row},${col}`);
+      return;
+    } else if (allowedToClick(row, col)) {
+      touchedCells.current.add(`${row},${col}`);
+      userColorChange(row, col);
+    }
+  }
+
+  function onMouseDown() {
+    setIsDragging(true);
+  }
+
+  function onMouseMove(event: React.MouseEvent<HTMLDivElement>) {
+    if (isDragging) {
+      const target = document.elementFromPoint(event.clientX, event.clientY);
+      const rowString = target?.getAttribute("data-row");
+      const colString = target?.getAttribute("data-col");
+
+      if (rowString && colString) {
+        const row = parseInt(rowString);
+        const col = parseInt(colString);
+
+        if (allowedToClick(row, col)) {
+          touchedCells.current.add(`${row},${col}`);
+          userColorChange(row, col);
+        }
+      }
+    }
+  }
+
+  function onMouseUp() {
+    setIsDragging(false);
+  }
+
   return (
     <div className="App">
       <div className="top-info">
@@ -303,8 +331,9 @@ export default function Home() {
           gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
         }}
-        // onTouchMove={handleTouchMove}
-        // onTouchEnd={handleTouchEnd}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseDown={onMouseDown}
       >
         {gridData.map((row, rowIndex) =>
           row.map((cell, columnIndex) => (
@@ -317,9 +346,6 @@ export default function Home() {
               isEnd={cell.isEnd}
               isAi={cell.isAi}
               isUser={cell.isUser}
-              onTouchStart={(event) => {
-                // handleTouchStart(event);
-              }}
               onClick={() => {
                 handleClick(rowIndex, columnIndex);
               }}
