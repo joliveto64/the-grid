@@ -54,7 +54,6 @@ body {
   padding: 0.5rem;
   border: none;
   background-color: rgb(114, 114, 114);
-  margin-block: 0.25rem;
   transition: 0.3s;
 }
 
@@ -63,6 +62,7 @@ body {
 }
 
 .bottom-info {
+  margin-top: 0.25rem;
   margin-bottom: 4rem;
 }
 

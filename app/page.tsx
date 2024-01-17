@@ -338,33 +338,39 @@ export default function Home() {
         </span>
       </div>
       <div
-        className="grid"
         style={{
-          gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
-          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          transform: `scale(${scale})`,
+          backgroundColor: "rgba(114, 114, 114, .1)",
         }}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseDown={onMouseDown}
       >
-        {gridData.map((row, rowIndex) =>
-          row.map((cell, columnIndex) => (
-            <Cell
-              key={`${rowIndex}-${columnIndex}`}
-              dataRow={rowIndex}
-              dataCol={columnIndex}
-              isDark={cell.isDark}
-              isStart={cell.isStart}
-              isEnd={cell.isEnd}
-              isAi={cell.isAi}
-              isUser={cell.isUser}
-              onClick={() => {
-                handleClick(rowIndex, columnIndex);
-              }}
-            />
-          ))
-        )}
+        <div
+          className="grid"
+          style={{
+            gridTemplateRows: `repeat(${gridSize}}, 1fr)`,
+            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+            transform: `scale(${scale})`,
+          }}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseDown={onMouseDown}
+        >
+          {gridData.map((row, rowIndex) =>
+            row.map((cell, columnIndex) => (
+              <Cell
+                key={`${rowIndex}-${columnIndex}`}
+                dataRow={rowIndex}
+                dataCol={columnIndex}
+                isDark={cell.isDark}
+                isStart={cell.isStart}
+                isEnd={cell.isEnd}
+                isAi={cell.isAi}
+                isUser={cell.isUser}
+                onClick={() => {
+                  handleClick(rowIndex, columnIndex);
+                }}
+              />
+            ))
+          )}
+        </div>
       </div>
       <div className="bottom-info">
         <span>{`Score: ${userScore}`}</span>
