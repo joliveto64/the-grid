@@ -29,6 +29,13 @@ body {
   justify-content: space-evenly;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 0.2rem;
+  transition: 0.3s;
+}
+
+.new-grid-button,
+.go-button,
+.scale {
+  transition: 0.2s;
 }
 
 .go-button:active,

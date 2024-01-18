@@ -32,6 +32,8 @@ export default function Home() {
     setIsDragging,
     scale,
     setScale,
+    isCoolDown,
+    setIsCoolDown,
   } = useSharedState();
 
   type Grid = {
@@ -43,13 +45,47 @@ export default function Home() {
   }[][];
 
   // AI FUNCTIONS ////////////////////////////////////
-  async function incrementCount(newCount: number) {
+  async function fetchCount() {
+    const { data, error } = await supabase
+      .from("counter")
+      .select("count")
+      .eq("id", 1)
+      .single();
+
+    if (error) {
+      setNumMazes(undefined);
+      console.error("Error retrieving count:", error);
+    } else {
+      setNumMazes(data.count);
+    }
+  }
+
+  useEffect(() => {
+    fetchCount();
+  }, []);
+
+  async function incrementCount() {
+    let num: number = 0;
+    const { data, error } = await supabase
+      .from("counter")
+      .select("count")
+      .eq("id", 1)
+      .single();
+
+    if (error) {
+      setNumMazes(undefined);
+      console.error("Error retrieving count:", error);
+    } else {
+      num = data.count;
+    }
+
     const { error: updateError } = await supabase
       .from("counter")
-      .update({ count: newCount })
+      .update({ count: num + 1 })
       .eq("id", 1);
 
     if (updateError) {
+      setNumMazes(undefined);
       console.error("Error updating count:", updateError);
     }
   }
@@ -116,7 +152,7 @@ export default function Home() {
 
         if (stopAi.current) return;
 
-        await delay(150);
+        await delay(200);
 
         setGridData((prevGrid: Grid) => {
           const newGrid = [...prevGrid];
@@ -142,7 +178,7 @@ export default function Home() {
 
     setTimeout(() => {
       clearAiPath();
-    }, 150);
+    }, 210);
   }
 
   function clearAiPath() {
@@ -219,12 +255,15 @@ export default function Home() {
     return false;
   }
 
-  function handleNewMazeButton() {
-    if (numMazes && numMazes > 0) {
-      const newNum = numMazes + 1;
-      setNumMazes(newNum);
-      incrementCount(newNum);
+  function handleDbUpdate() {
+    if (numMazes) {
+      incrementCount();
+      setNumMazes((prev) => (prev !== undefined ? prev + 1 : prev));
     }
+  }
+
+  function handleNewMazeButton() {
+    handleDbUpdate();
 
     resetAi();
     const newGridSize = tempGridSize;
@@ -319,7 +358,20 @@ export default function Home() {
         >
           Go
         </button>
-        <button className="new-grid-button" onClick={handleNewMazeButton}>
+        <button
+          className="new-grid-button"
+          style={isCoolDown ? { filter: "opacity(.5)" } : {}}
+          onClick={() => {
+            if (!isCoolDown) {
+              handleNewMazeButton();
+              setIsCoolDown(true);
+
+              setTimeout(() => {
+                setIsCoolDown(false);
+              }, 3000);
+            }
+          }}
+        >
           New
         </button>
         <div>
@@ -375,8 +427,8 @@ export default function Home() {
       </div>
       <div className="bottom-info">
         <span>{`Score: ${userScore}`}</span>
-        <span>{`Grids Generated: ${
-          numMazes ? numMazes : ["[no internet]"]
+        <span>{`${
+          numMazes ? `Mazes Generated: ${numMazes}` : "[offline]"
         }`}</span>
       </div>
       <span className="how-to-play">
