@@ -11,28 +11,11 @@ export default function useSharedState() {
   const [gridData, setGridData] = useState(createGrid(gridSize, gridSize, 0));
   const [aiDone, setAiDone] = useState(false);
   const [userScore, setUserScore] = useState<string | number>("");
-  const [numMazes, setNumMazes] = useState<number>();
+  const [numMazes, setNumMazes] = useState<number | undefined>();
   const [showHowToPlay, setShowHowToPlay] = useState(true);
   const randomNum = useRef<number>(0);
   const [scale, setScale] = useState(1.0);
-
-  useEffect(() => {
-    async function fetchCount() {
-      const { data, error } = await supabase
-        .from("counter")
-        .select("count")
-        .eq("id", 1)
-        .single();
-
-      if (error) {
-        console.error("Error retrieving count:", error);
-      } else {
-        setNumMazes(data.count);
-      }
-    }
-
-    fetchCount();
-  }, []);
+  const [isCoolDown, setIsCoolDown] = useState(false);
 
   return {
     gridData,
@@ -56,5 +39,7 @@ export default function useSharedState() {
     setIsDragging,
     scale,
     setScale,
+    isCoolDown,
+    setIsCoolDown,
   };
 }
