@@ -345,8 +345,6 @@ export default function Home() {
     }
   }
 
-  console.log(numMazes);
-
   return (
     <div className="App">
       <div className="top-info">
@@ -370,7 +368,7 @@ export default function Home() {
 
               setTimeout(() => {
                 setIsCoolDown(false);
-              }, 5000);
+              }, 3000);
             }
           }}
         >
@@ -429,7 +427,9 @@ export default function Home() {
       </div>
       <div className="bottom-info">
         <span>{`Score: ${userScore}`}</span>
-        <span>{`Mazes Generated: ${numMazes ? numMazes : "[offline]"}`}</span>
+        <span>{`${
+          numMazes ? `Mazes Generated: ${numMazes}` : "[offline]"
+        }`}</span>
       </div>
       <span className="how-to-play">
         <strong
