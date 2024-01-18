@@ -59,6 +59,7 @@ body {
 
 .scale {
   display: none;
+  cursor: pointer;
 }
 
 .bottom-info {

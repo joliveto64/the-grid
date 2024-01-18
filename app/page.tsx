@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 // TODO: refactor
+// TODO: zoom out stuck when rotation landscape > portrait
 
 export default function Home() {
   const {
