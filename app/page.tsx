@@ -152,7 +152,7 @@ export default function Home() {
 
         if (stopAi.current) return;
 
-        await delay(150);
+        await delay(200);
 
         setGridData((prevGrid: Grid) => {
           const newGrid = [...prevGrid];
@@ -178,7 +178,7 @@ export default function Home() {
 
     setTimeout(() => {
       clearAiPath();
-    }, 150);
+    }, 210);
   }
 
   function clearAiPath() {

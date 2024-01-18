@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { createGrid } from "../createMaze";
-import { supabase } from "../supabaseClient";
 
 export default function useSharedState() {
   const [tempGridSize, setTempGridSize] = useState(10);
