@@ -66,17 +66,17 @@ function findPaths(grid: Grid, startPos: [number, number]) {
         }
       }
     } else if (startPos[0] === 0 && startPos[1] === grid[0].length - 1) {
-      if (row > 0) {
-        let up = grid[row - 1][col];
-        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
-          stack.push({ row: row - 1, col: col });
-        }
-      }
-
       if (col < grid[0].length - 1) {
         let right = grid[row][col + 1];
         if (!right.isDark && !visited.has(row + "," + (col + 1))) {
           stack.push({ row: row, col: col + 1 });
+        }
+      }
+
+      if (row > 0) {
+        let up = grid[row - 1][col];
+        if (!up.isDark && !visited.has(row - 1 + "," + col)) {
+          stack.push({ row: row - 1, col: col });
         }
       }
 

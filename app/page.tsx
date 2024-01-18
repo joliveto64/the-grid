@@ -249,7 +249,7 @@ export default function Home() {
     if (randomNum === 0) {
       return "→ ↓ ← ↑";
     } else if (randomNum === 1) {
-      return "↓ ← → ↑";
+      return "↓ ← ↑ → ";
     } else if (randomNum === 2) {
       return "← ↑ ↓ →";
     } else if (randomNum === 3) {
