@@ -1,45 +1,32 @@
 "use client";
 import Cell from "./components/Cell";
-import useSharedState from "./components/useSharedState";
+import useDb from "./components/useDb";
+import { useState, useRef, useEffect } from "react";
+import { orderReadout, allowedToClick, gradeUser } from "./utils";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
-import { Dispatch, SetStateAction, useEffect } from "react";
-import useDb from "./components/useDb";
-import { orderReadout, allowedToClick, gradeUser } from "./utils";
+import { createGrid } from "./createMaze";
 
 // TODO: refactor
 // TODO: zoom out stuck when rotation landscape > portrait
 
 export default function Home() {
-  const {
-    gridData,
-    setGridData,
-    gridSize,
-    setGridSize,
-    touchedCells,
-    stopAi,
-    tempGridSize,
-    setTempGridSize,
-    aiDone,
-    setAiDone,
-    userScore,
-    setUserScore,
-    numMazes,
-    setNumMazes,
-    showHowToPlay,
-    setShowHowToPlay,
-    randomNum,
-    isDragging,
-    setIsDragging,
-    scale,
-    setScale,
-    isCoolDown,
-    setIsCoolDown,
-    clickLocked,
-    setClickLocked,
-  } = useSharedState();
+  const [tempGridSize, setTempGridSize] = useState(10);
+  const [gridSize, setGridSize] = useState(10);
+  const [isDragging, setIsDragging] = useState(false);
+  const [gridData, setGridData] = useState(createGrid(gridSize, gridSize, 0));
+  const [aiDone, setAiDone] = useState(false);
+  const [userScore, setUserScore] = useState<string | number>("");
+  const [numMazes, setNumMazes] = useState<number | undefined>();
+  const [showHowToPlay, setShowHowToPlay] = useState(true);
+  const [scale, setScale] = useState(1.0);
+  const [isCoolDown, setIsCoolDown] = useState(false);
 
-  const { incrementCount } = useDb();
+  const touchedCells = useRef<Set<string>>(new Set());
+  const randomNum = useRef<number>(0);
+  const stopAi = useRef<boolean>(false);
+
+  const { incrementCount, fetchCount } = useDb();
 
   type Grid = {
     isDark: boolean;
@@ -50,6 +37,10 @@ export default function Home() {
   }[][];
 
   // AI FUNCTIONS ////////////////////////////////////
+  useEffect(() => {
+    fetchCount(setNumMazes);
+  }, []);
+
   function handleTestMaze(grid: Grid) {
     stopAi.current = false;
     clearAiPath();
@@ -174,7 +165,7 @@ export default function Home() {
 
   function handleNewMazeButton() {
     if (numMazes) {
-      incrementCount();
+      incrementCount(setNumMazes);
       setNumMazes((prev) => (prev !== undefined ? prev + 1 : prev));
     }
 

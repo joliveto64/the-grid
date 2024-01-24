@@ -1,12 +1,9 @@
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
-import { useEffect } from "react";
-import useSharedState from "./useSharedState";
 import { supabase } from "../supabaseClient.js";
 
 export default function useDb() {
-  const { setNumMazes } = useSharedState();
-
-  async function fetchCount() {
+  async function fetchCount(
+    setNumMazes: React.Dispatch<React.SetStateAction<number | undefined>>
+  ) {
     const { data, error } = await supabase
       .from("counter")
       .select("count")
@@ -21,11 +18,9 @@ export default function useDb() {
     }
   }
 
-  useEffect(() => {
-    fetchCount();
-  }, []);
-
-  async function incrementCount() {
+  async function incrementCount(
+    setNumMazes: React.Dispatch<React.SetStateAction<number | undefined>>
+  ) {
     let num: number = 0;
     const { data, error } = await supabase
       .from("counter")
@@ -51,5 +46,5 @@ export default function useDb() {
     }
   }
 
-  return { supabase, incrementCount };
+  return { incrementCount, fetchCount };
 }
