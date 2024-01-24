@@ -3,8 +3,9 @@ import Cell from "./components/Cell";
 import useSharedState from "./components/useSharedState";
 import { exploreMaze } from "./pathfinding";
 import { createMaze } from "./createMaze";
-import { useEffect } from "react";
-import { supabase } from "./supabaseClient";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import useDb from "./components/useDb";
+import { orderReadout, allowedToClick, gradeUser } from "./utils";
 
 // TODO: refactor
 // TODO: zoom out stuck when rotation landscape > portrait
@@ -34,7 +35,11 @@ export default function Home() {
     setScale,
     isCoolDown,
     setIsCoolDown,
+    clickLocked,
+    setClickLocked,
   } = useSharedState();
+
+  const { incrementCount } = useDb();
 
   type Grid = {
     isDark: boolean;
@@ -45,51 +50,6 @@ export default function Home() {
   }[][];
 
   // AI FUNCTIONS ////////////////////////////////////
-  async function fetchCount() {
-    const { data, error } = await supabase
-      .from("counter")
-      .select("count")
-      .eq("id", 1)
-      .single();
-
-    if (error) {
-      setNumMazes(undefined);
-      console.error("Error retrieving count:", error);
-    } else {
-      setNumMazes(data.count);
-    }
-  }
-
-  useEffect(() => {
-    fetchCount();
-  }, []);
-
-  async function incrementCount() {
-    let num: number = 0;
-    const { data, error } = await supabase
-      .from("counter")
-      .select("count")
-      .eq("id", 1)
-      .single();
-
-    if (error) {
-      setNumMazes(undefined);
-      console.error("Error retrieving count:", error);
-    } else {
-      num = data.count;
-    }
-
-    const { error: updateError } = await supabase
-      .from("counter")
-      .update({ count: num + 1 })
-      .eq("id", 1);
-
-    if (updateError) {
-      setNumMazes(undefined);
-      console.error("Error updating count:", updateError);
-    }
-  }
-
   function handleTestMaze(grid: Grid) {
     stopAi.current = false;
     clearAiPath();
@@ -107,35 +67,9 @@ export default function Home() {
     }
   }
 
-  function gradeUser(grid: Grid) {
-    let overlap = 0;
-    let aiCount = 0;
-    let userCount = -1;
-    for (let r = 0; r < grid.length; r++) {
-      for (let c = 0; c < grid[0].length; c++) {
-        if (grid[r][c].isAi) {
-          aiCount++;
-        }
-        if (grid[r][c].isUser) userCount++;
-        if (grid[r][c].isUser && grid[r][c].isAi) overlap++;
-      }
-    }
-
-    let ratio: number;
-    if (userCount === aiCount && userCount === overlap) {
-      ratio = 1;
-    } else if (aiCount > userCount) {
-      ratio = overlap / aiCount;
-    } else {
-      ratio = overlap / userCount;
-    }
-
-    setUserScore((ratio * 100).toFixed(1) + "%");
-  }
-
   useEffect(() => {
     if (aiDone) {
-      gradeUser(gridData);
+      setUserScore(gradeUser(gridData));
       setAiDone(false);
     }
   }, [aiDone]);
@@ -208,15 +142,19 @@ export default function Home() {
     });
   }
 
-  function addStartToTouched() {
-    for (let r = 0; r < gridData.length; r++) {
-      for (let c = 0; c < gridData[r].length; c++) {
-        if (gridData[r][c].isStart) {
-          touchedCells.current.add(`${r},${c}`);
+  useEffect(() => {
+    function addStartToTouched() {
+      for (let r = 0; r < gridData.length; r++) {
+        for (let c = 0; c < gridData[r].length; c++) {
+          if (gridData[r][c].isStart) {
+            touchedCells.current.add(`${r},${c}`);
+          }
         }
       }
     }
-  }
+
+    addStartToTouched();
+  }, [gridData]);
 
   function clearPath(r: number, c: number) {
     setGridData((prevGrid) =>
@@ -234,36 +172,11 @@ export default function Home() {
     );
   }
 
-  function allowedToClick(row: number, col: number) {
-    const up = `${row - 1},${col}`;
-    const down = `${row + 1},${col}`;
-    const right = `${row},${col + 1}`;
-    const left = `${row},${col - 1}`;
-
-    if (gridData[row][col].isDark) {
-      return false;
-    }
-
-    if (
-      touchedCells.current.has(down) ||
-      touchedCells.current.has(right) ||
-      touchedCells.current.has(up) ||
-      touchedCells.current.has(left)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  function handleDbUpdate() {
+  function handleNewMazeButton() {
     if (numMazes) {
       incrementCount();
       setNumMazes((prev) => (prev !== undefined ? prev + 1 : prev));
     }
-  }
-
-  function handleNewMazeButton() {
-    handleDbUpdate();
 
     resetAi();
     const newGridSize = tempGridSize;
@@ -275,25 +188,9 @@ export default function Home() {
     setUserScore("");
   }
 
-  useEffect(() => {
-    addStartToTouched();
-  }, [gridData]);
-
   function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
     let size = parseInt(event.target.value);
     setTempGridSize(size);
-  }
-
-  function orderReadout(randomNum: number) {
-    if (randomNum === 0) {
-      return "→ ↓ ← ↑";
-    } else if (randomNum === 1) {
-      return "↓ ← ↑ → ";
-    } else if (randomNum === 2) {
-      return "← ↑ ↓ →";
-    } else if (randomNum === 3) {
-      return "→ ↑ ← ↓";
-    }
   }
 
   function handleClick(row: number, col: number) {
@@ -305,7 +202,7 @@ export default function Home() {
       clearPath(row, col);
       touchedCells.current.delete(`${row},${col}`);
       return;
-    } else if (allowedToClick(row, col)) {
+    } else if (allowedToClick(touchedCells, gridData, row, col)) {
       touchedCells.current.add(`${row},${col}`);
       userColorChange(row, col);
     }
@@ -325,7 +222,7 @@ export default function Home() {
         const row = parseInt(rowString);
         const col = parseInt(colString);
 
-        if (allowedToClick(row, col)) {
+        if (allowedToClick(touchedCells, gridData, row, col)) {
           touchedCells.current.add(`${row},${col}`);
           userColorChange(row, col);
         }
@@ -337,7 +234,7 @@ export default function Home() {
     setIsDragging(false);
   }
 
-  function changeGridScale() {
+  function handleScaleChange() {
     if (scale === 1) {
       setScale(0.5);
     } else {
@@ -386,7 +283,12 @@ export default function Home() {
             <option value="20">20</option>
           </select>
         </div>
-        <span className="scale" onClick={changeGridScale}>
+        <span
+          className="scale"
+          onClick={() => {
+            handleScaleChange();
+          }}
+        >
           +/-
         </span>
       </div>

@@ -154,4 +154,5 @@ function createPlaceholder(rows: number, cols: number) {
   return placeholder;
 }
 
+
 export { createGrid, createMaze };

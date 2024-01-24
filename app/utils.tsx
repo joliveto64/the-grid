@@ -1,8 +1,11 @@
+import { MutableRefObject } from "react";
+
 interface Cell {
   isDark: boolean;
   isStart: boolean;
   isEnd: boolean;
   isAi: boolean;
+  isUser: boolean;
 }
 type Grid = Cell[][];
 
@@ -66,18 +69,68 @@ function PreventOpenSpace(row: number, col: number, grid: Grid) {
   return false;
 }
 
-function countCells(grid: Grid) {
-  let count = -2;
+function orderReadout(randomNum: number) {
+  if (randomNum === 0) {
+    return "→ ↓ ← ↑";
+  } else if (randomNum === 1) {
+    return "↓ ← ↑ → ";
+  } else if (randomNum === 2) {
+    return "← ↑ ↓ →";
+  } else if (randomNum === 3) {
+    return "→ ↑ ← ↓";
+  }
+}
 
-  for (let row of grid) {
-    for (let cell of row) {
-      if (!cell.isDark) {
-        count++;
+function allowedToClick(
+  touchedCells: MutableRefObject<Set<string>>,
+  gridData: Grid,
+  row: number,
+  col: number
+) {
+  const up = `${row - 1},${col}`;
+  const down = `${row + 1},${col}`;
+  const right = `${row},${col + 1}`;
+  const left = `${row},${col - 1}`;
+
+  if (gridData[row][col].isDark) {
+    return false;
+  }
+
+  if (
+    touchedCells.current.has(down) ||
+    touchedCells.current.has(right) ||
+    touchedCells.current.has(up) ||
+    touchedCells.current.has(left)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function gradeUser(grid: Grid) {
+  let overlap = 0;
+  let aiCount = 0;
+  let userCount = -1;
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[0].length; c++) {
+      if (grid[r][c].isAi) {
+        aiCount++;
       }
+      if (grid[r][c].isUser) userCount++;
+      if (grid[r][c].isUser && grid[r][c].isAi) overlap++;
     }
   }
 
-  return count;
+  let ratio: number;
+  if (userCount === aiCount && userCount === overlap) {
+    ratio = 1;
+  } else if (aiCount > userCount) {
+    ratio = overlap / aiCount;
+  } else {
+    ratio = overlap / userCount;
+  }
+
+  return (ratio * 100).toFixed(1) + "%";
 }
 
-export { PreventOpenSpace, countCells };
+export { PreventOpenSpace, orderReadout, allowedToClick, gradeUser };
