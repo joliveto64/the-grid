@@ -233,6 +233,34 @@ export default function Home() {
     }
   }
 
+  async function apiCall() {
+    try {
+      const response = await fetch("http://localhost:3000/api/pathfinding", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        // The response text will not have details about the error, so we parse the JSON for that
+        const errorResponse = await response.json();
+        throw new Error(`Error: ${response.status} - ${errorResponse.error}`);
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success) {
+        console.log("Response", responseData);
+      } else {
+        console.error("Failed to create maze:", responseData.error);
+      }
+    } catch (error: any) {
+      console.error("Network or server error:", error.message);
+    }
+  }
+
+  // useEffect(() => {
+  //   apiCall();
+  // }, []);
+
   return (
     <div className="App">
       <div className="top-info">
