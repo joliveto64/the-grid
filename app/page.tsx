@@ -233,27 +233,22 @@ export default function Home() {
     }
   }
 
+  // Place this code inside your React component
   async function apiCall() {
     try {
-      const response = await fetch("http://localhost:3000/api/pathfinding", {
-        method: "POST",
-      });
+      const response = await fetch("/api/path"); // Make sure this matches your Next.js API route
 
       if (!response.ok) {
-        // The response text will not have details about the error, so we parse the JSON for that
-        const errorResponse = await response.json();
-        throw new Error(`Error: ${response.status} - ${errorResponse.error}`);
+        throw new Error(`Network response was not ok: ${response.status}`);
       }
 
-      const responseData = await response.json();
-
-      if (responseData.success) {
-        console.log("Response", responseData);
-      } else {
-        console.error("Failed to create maze:", responseData.error);
-      }
+      const data = await response.json();
+      console.log("Response data:", data);
     } catch (error: any) {
-      console.error("Network or server error:", error.message);
+      console.error(
+        "There was a problem with the fetch operation:",
+        error.message
+      );
     }
   }
 
