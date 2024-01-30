@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# The GRID
 
-## Getting Started
+An educational game, both for myself and anyone else interesting in pathfinding. Test your ability to predict the AI path across an infinite number of randomly-generated grids!
 
-First, run the development server:
+## Tenchnologies Used
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js
+- Typescript
+- CSS
+- Supabase
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Randomized grid layouts at different sizes (10x10, 15x15, etc..)
+- DFS pathfinding, decision-making changes based on start/end positions
+- Touch to select cells (or click & click + drag on laptop/desktop)
+- Tracks total number of grids generated for all users
+- Provides percentage based scores
+- Grid resizing for visibility
+- Fully responsive design
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## How To Play
 
-## Learn More
+1. Start by selecting the size of the grid you wish to use and click "New"
+2. The AIs decision making for the grid is displayed at the top left
+3. Select cells to fill out the grid, moving from green to red in the path you think the AI will take (see detailed instructions in game)
+4. Click "Go" to have the computer solve the grid
+5. Colors in the grid will change based on where the computer moves. Blue cells are user-visited, yellow cells are AI-visited and blue cells outlined in yellow are cells where both the user and AI have visited
+6. Your score will be displayed at the bottom left
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+<img src="app/images/grid.png" alt="Gameplay Screenshot" width="400"/>
