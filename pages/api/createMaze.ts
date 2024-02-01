@@ -1,5 +1,6 @@
-import { exploreMaze } from "./pathfinding";
-import { PreventOpenSpace } from "./utils";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { exploreMaze } from "../../app/pathfinding";
+import { PreventOpenSpace } from "../../app/utils";
 
 type Grid = {
   isDark: boolean;
@@ -153,3 +154,18 @@ function createPlaceholder(rows: number, cols: number) {
   }
   return placeholder;
 }
+
+function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log("Handler is being called, method: ", req.method);
+
+  // This will only handle GET requests.
+  if (req.method === "GET") {
+    res.status(200).json({ text: "Yoooooooo" });
+  } else {
+    // Respond with a method not allowed error if it's not a GET request.
+    res.setHeader("Allow", ["GET"]);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+
+export { createGrid, createMaze, handler };

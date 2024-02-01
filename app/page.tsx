@@ -4,8 +4,8 @@ import useDb from "./components/useDb";
 import { useState, useRef, useEffect } from "react";
 import { orderReadout, allowedToClick, gradeUser } from "./utils";
 import { exploreMaze } from "./pathfinding";
-import { createMaze } from "./createMaze";
-import { createGrid } from "./createMaze";
+import { createMaze } from "../pages/api/createMaze";
+import { createGrid } from "../pages/api/createMaze";
 
 // TODO: refactor
 // TODO: zoom out stuck when rotation landscape > portrait
@@ -236,7 +236,7 @@ export default function Home() {
   // Place this code inside your React component
   async function apiCall() {
     try {
-      const response = await fetch("/api/path"); // Make sure this matches your Next.js API route
+      const response = await fetch("/api/createMaze"); // Make sure this matches your Next.js API route
 
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.status}`);
@@ -252,9 +252,9 @@ export default function Home() {
     }
   }
 
-  // useEffect(() => {
-  //   apiCall();
-  // }, []);
+  useEffect(() => {
+    apiCall();
+  }, []);
 
   return (
     <div className="App">
