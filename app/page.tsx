@@ -1,11 +1,10 @@
 "use client";
 import Cell from "./components/Cell";
-import useDb from "./components/useDb";
 import { useState, useRef, useEffect } from "react";
 import { orderReadout, allowedToClick, gradeUser } from "./utils";
 import { exploreMaze } from "./pathfinding";
-import { createMaze } from "../pages/api/createMaze";
-import { createGrid } from "../pages/api/createMaze";
+import { fetchCount } from "@/pages/api/useDB";
+import { createMaze, createGrid } from "../pages/api/createMaze";
 
 // TODO: refactor
 // TODO: zoom out stuck when rotation landscape > portrait
@@ -25,8 +24,6 @@ export default function Home() {
   const touchedCells = useRef<Set<string>>(new Set());
   const randomNum = useRef<number>(0);
   const stopAi = useRef<boolean>(false);
-
-  const { incrementCount, fetchCount } = useDb();
 
   type Grid = {
     isDark: boolean;
@@ -165,9 +162,10 @@ export default function Home() {
 
   function handleNewMazeButton() {
     if (numMazes) {
-      incrementCount(setNumMazes);
       setNumMazes((prev) => (prev !== undefined ? prev + 1 : prev));
     }
+
+    apiCall();
 
     resetAi();
     const newGridSize = tempGridSize;
@@ -236,7 +234,7 @@ export default function Home() {
   // Place this code inside your React component
   async function apiCall() {
     try {
-      const response = await fetch("/api/createMaze"); // Make sure this matches your Next.js API route
+      const response = await fetch("/api/useDb"); // Make sure this matches your Next.js API route
 
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.status}`);
@@ -251,10 +249,6 @@ export default function Home() {
       );
     }
   }
-
-  useEffect(() => {
-    apiCall();
-  }, []);
 
   return (
     <div className="App">
