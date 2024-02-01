@@ -289,6 +289,8 @@ export default function Home() {
             <option value="10">10</option>
             <option value="15">15</option>
             <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
           </select>
         </div>
         <span
@@ -355,7 +357,7 @@ export default function Home() {
         always go right if possible. If it can't go right, it will go down. If
         it can't go down, it will go left. If it can't go left, it will go up.
         If the computer hits a dead-end, it will revert to the most recently
-        skipped path. Fill out the grid and press "Go" when you're ready! If on mobile, turn your phone sideways for a closer view.`
+        skipped path. Fill out the grid and press "Go" when you're ready! If on mobile, turn your phone sideways for a closer view. Larger grid sizes may not be suitable on mobile.`
           : ""}{" "}
       </span>
     </div>
