@@ -53,7 +53,7 @@ function fillGrid(grid: Grid): Grid {
     for (let c = 0; c < grid[r].length; c++) {
       let randomNum = Math.random();
       // set % chance for cell becoming a path
-      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.4) {
+      if (!PreventOpenSpace(r, c, grid) && randomNum > 0.35) {
         grid[r][c] = { ...grid[r][c], isDark: false };
       }
     }
@@ -66,7 +66,7 @@ function createMaze(rows: number, cols: number, randomNum: number) {
   let validMazes = [];
   let count = 0;
   // take first valid maze, stop at 1000 attempts / use placeholder
-  while (validMazes.length < 1 && count < 1000) {
+  while (validMazes.length < 1 && count < 1500) {
     count++;
     let currentMaze = fillGrid(createGrid(rows, cols, randomNum));
 
@@ -154,4 +154,21 @@ function createPlaceholder(rows: number, cols: number) {
   return placeholder;
 }
 
-export { createGrid, createMaze };
+export { createMaze };
+
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Destructure arguments from the request body or query
+  const { size, randomNum } = req.method === "POST" ? req.body : req.query;
+
+  // Your createMaze logic goes here...
+  const maze = createMaze(size, size, randomNum);
+
+  // Respond with the created maze or an error message
+  if (maze) {
+    res.status(200).json(maze);
+  } else {
+    res.status(500).json({ message: "Error creating maze" });
+  }
+}

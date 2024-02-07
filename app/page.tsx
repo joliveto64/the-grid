@@ -1,10 +1,14 @@
 "use client";
 import Cell from "./components/Cell";
 import { useState, useRef, useEffect } from "react";
-import { orderReadout, allowedToClick, gradeUser } from "./utils";
+import {
+  orderReadout,
+  allowedToClick,
+  gradeUser,
+  createStartingGrid,
+} from "./utils";
 import { exploreMaze } from "./pathfinding";
-import { fetchCount } from "@/pages/api/useDB";
-import { createMaze, createGrid } from "../pages/api/createMaze";
+import { fetchCount } from "@/pages/api/useDb";
 
 // TODO: refactor
 // TODO: zoom out stuck when rotation landscape > portrait
@@ -13,13 +17,14 @@ export default function Home() {
   const [tempGridSize, setTempGridSize] = useState(10);
   const [gridSize, setGridSize] = useState(10);
   const [isDragging, setIsDragging] = useState(false);
-  const [gridData, setGridData] = useState(createGrid(gridSize, gridSize, 0));
+  const [gridData, setGridData] = useState(createStartingGrid(gridSize));
   const [aiDone, setAiDone] = useState(false);
   const [userScore, setUserScore] = useState<string | number>("");
   const [numMazes, setNumMazes] = useState<number | undefined>();
   const [showHowToPlay, setShowHowToPlay] = useState(true);
   const [scale, setScale] = useState(1.0);
   const [isCoolDown, setIsCoolDown] = useState(false);
+  const [mazeTrigger, setMazeTrigger] = useState(0);
 
   const touchedCells = useRef<Set<string>>(new Set());
   const randomNum = useRef<number>(0);
@@ -32,6 +37,39 @@ export default function Home() {
     isAi: boolean;
     isUser: boolean;
   }[][];
+
+  async function fetchMaze(size: number, randomNum: number): Promise<Grid> {
+    const response = await fetch("/api/createMaze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ size, randomNum }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok" + response.statusText);
+    }
+
+    let res = response.json();
+    return res;
+  }
+
+  useEffect(() => {
+    // Define `updateMaze` inside `useEffect`
+    const updateMaze = async () => {
+      try {
+        const maze = await fetchMaze(gridSize, randomNum.current);
+        setGridData(maze); // Set the grid data with the fetched maze
+      } catch (error) {
+        console.error("Failed to fetch the maze:", error);
+        // Handle errors like showing a message to the user
+      }
+    };
+
+    // Call `updateMaze` immediately after defining it
+    updateMaze();
+  }, [mazeTrigger]); // This effect will run whenever `size` or `randomNum` changes
 
   // AI FUNCTIONS ////////////////////////////////////
   useEffect(() => {
@@ -165,13 +203,13 @@ export default function Home() {
       setNumMazes((prev) => (prev !== undefined ? prev + 1 : prev));
     }
 
-    apiCall();
+    fetchDb();
 
     resetAi();
     const newGridSize = tempGridSize;
     setGridSize(newGridSize);
     randomNum.current = Math.floor(Math.random() * 4);
-    setGridData(createMaze(newGridSize, newGridSize, randomNum.current));
+    setMazeTrigger((prev) => prev + 1);
 
     touchedCells.current.clear();
     setUserScore("");
@@ -232,7 +270,7 @@ export default function Home() {
   }
 
   // Place this code inside your React component
-  async function apiCall() {
+  async function fetchDb() {
     try {
       const response = await fetch("/api/useDb"); // Make sure this matches your Next.js API route
 
@@ -241,7 +279,6 @@ export default function Home() {
       }
 
       const data = await response.json();
-      console.log("Response data:", data);
     } catch (error: any) {
       console.error(
         "There was a problem with the fetch operation:",
@@ -340,7 +377,7 @@ export default function Home() {
       <div className="bottom-info">
         <span>{`Score: ${userScore}`}</span>
         <span>{`${
-          numMazes ? `Mazes Generated: ${numMazes}` : "[offline]"
+          numMazes ? `Grids Created: ${numMazes}` : "[offline]"
         }`}</span>
       </div>
       <span className="how-to-play">

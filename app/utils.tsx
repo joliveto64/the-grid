@@ -133,4 +133,30 @@ function gradeUser(grid: Grid) {
   return (ratio * 100).toFixed(1) + "%";
 }
 
-export { PreventOpenSpace, orderReadout, allowedToClick, gradeUser };
+function createStartingGrid(size: number) {
+  let arr = [];
+
+  for (let r = 0; r < size; r++) {
+    let currentRow = [];
+    for (let c = 0; c < size; c++) {
+      currentRow.push({
+        isDark: true,
+        isStart: false,
+        isEnd: false,
+        isAi: false,
+        isUser: false,
+      });
+    }
+    arr.push(currentRow);
+  }
+
+  return arr;
+}
+
+export {
+  PreventOpenSpace,
+  orderReadout,
+  allowedToClick,
+  gradeUser,
+  createStartingGrid,
+};
